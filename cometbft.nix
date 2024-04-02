@@ -1,10 +1,10 @@
-{ pkgs ? import <nixpkgs> {}, ... }:
+{ pkgs ? import <nixpkgs> {}, ... }: let
 
-let
-  name = "cometbft";
-  version = "0.37.5";
-  hash = "sha256-wNVHsifieAtZgedavCEJLgG0kRDqUhG4Lk5ciTPoNzI=";
-  vendorHash = "sha256-JPEGMa0HDesEtKFvgLUP2UfTB0DlParepE2p+n06Igc=";
+name = "cometbft";
+version = "0.37.5";
+hash = "sha256-wNVHsifieAtZgedavCEJLgG0kRDqUhG4Lk5ciTPoNzI=";
+vendorHash = "sha256-JPEGMa0HDesEtKFvgLUP2UfTB0DlParepE2p+n06Igc=";
+
 in with pkgs; with pkgs.lib;
 
 (buildGoModule rec {
