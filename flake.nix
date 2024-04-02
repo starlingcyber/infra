@@ -8,9 +8,7 @@
 
   outputs = inputs @ { self, nixpkgs, flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
-      flake =
-        let pkgs = import nixpkgs;
-        in with pkgs; { devShells.default = mkShell {}; };
+      flake = {};
       systems = [ "x86_64-linux" ];
       perSystem = { config, self', inputs', pkgs, system, ... }:
         with pkgs; let
