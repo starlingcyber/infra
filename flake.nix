@@ -24,7 +24,21 @@
             inherit cometbft horcrux penumbra;
             default = symlinkJoin {
               name = "starling-cybernetics-infra";
-              paths = [ ];
+              paths = [ cometbft horcrux penumbra ];
+            };
+          };
+          apps = {
+            pd = {
+              type = "app";
+              program = "${penumbra}/bin/pd";
+            };
+            pcli = {
+              type = "app";
+              program = "${penumbra}/bin/pcli";
+            };
+            pclientd = {
+              type = "app";
+              program = "${penumbra}/bin/pclientd";
             };
           };
         };

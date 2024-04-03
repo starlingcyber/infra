@@ -1,7 +1,10 @@
 { pkgs ? import <nixpkgs> {}, crane, ... }: let
 
+name = "penumbra";
+owner = "penumbra-zone";
+repo = "penumbra";
 version = "0.71.0";
-hash = "sha256-2mpyBEt44UlXm6hahJG9sHGxj6nzh7z9lnj/vLtAAzs=";
+hash = "sha256-K9gdQHOcrRmurz5lfhTJIr/RW+y12C4peDa3GvJwjno=";
 
 in let
   # Set up for Rust builds
@@ -14,14 +17,14 @@ in with pkgs; with pkgs.lib;
 
 # All the Penumbra binaries
 (craneLib.buildPackage {
-  pname = "penumbra";
+  pname = name;
   src = cleanSourceWith {
-    src = fetchFromGitHub {
-      owner = "penumbra-zone";
-      repo = "penumbra";
+    src = (fetchgit {
+      url = "https://github.com/${owner}/${repo}";
       rev = "v${version}";
       sha256 = hash;
-    };
+      fetchLFS = true;
+    });
     filter = path: type:
       # Retain proving and verification parameters, and no-lfs marker file ...
       (builtins.match ".*\.(no_lfs|param||bin)$" path != null) ||
