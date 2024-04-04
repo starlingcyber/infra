@@ -14,11 +14,9 @@
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "x86_64-linux" ];
       perSystem = { config, self', inputs', pkgs, system, ... }:
-        with pkgs;
-        let localPackages = callPackage ./packages ({ inherit pkgs crane; });
-        in rec {
-          packages = builtins.listToAttrs localPackages;
-          devShells.default = callPackage ./shell.nix { inherit pkgs localPackages; };
+        with pkgs; with builtins; rec {
+          packages = listToAttrs (callPackage ./packages { inherit pkgs crane; });
+          devShells.default = callPackage ./shell.nix { inherit pkgs packages; };
 
           # Permits unfree licenses, thank you to <https://jamesconroyfinn.com/til/flake-parts-and-unfree-packages>
           _module.args.pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };

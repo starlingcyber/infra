@@ -1,4 +1,4 @@
-{ pkgs ? import <nixpkgs> {}, localPackages }:
+{ pkgs ? import <nixpkgs> {}, packages }:
 
 with pkgs; let extraPackages = [
   terraform
@@ -6,5 +6,5 @@ with pkgs; let extraPackages = [
 
 in with builtins; mkShell {
   PCLI_UNLEASH_DANGER = 1;
-  buildInputs = extraPackages ++ map (a: a.value) localPackages;
+  buildInputs = extraPackages ++ builtins.attrValues packages;
 }
