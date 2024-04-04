@@ -20,7 +20,9 @@
           horcrux = callPackage ./horcrux.nix { inherit pkgs; };
           penumbra = callPackage ./penumbra.nix { inherit pkgs crane; };
         in {
-          devShells.default = callPackage ./shell.nix { inherit pkgs; };
+          devShells.default = callPackage ./shell.nix {
+            inherit pkgs cometbft horcrux penumbra;
+          };
           packages = {
             inherit cometbft horcrux penumbra;
             default = symlinkJoin {
@@ -28,10 +30,10 @@
               paths = [ cometbft horcrux penumbra ];
             };
           };
-          apps = {
-            pd = { type = "app"; program = "${penumbra}/bin/pd"; };
-            pcli = { type = "app"; program = "${penumbra}/bin/pcli"; };
-            pclientd = { type = "app"; program = "${penumbra}/bin/pclientd"; };
+          apps = let mkApp = program: { type = "app"; inherit program; }; in {
+            pd = mkApp "${penumbra}/bin/pd";
+            pcli = mkApp "${penumbra}/bin/pcli";
+            pclientd = mkApp "${penumbra}/bin/pclientd";
           };
 
           # Permits unfree licenses, thank you to <https://jamesconroyfinn.com/til/flake-parts-and-unfree-packages>
