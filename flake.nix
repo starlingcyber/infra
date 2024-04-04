@@ -14,9 +14,17 @@
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "x86_64-linux" ];
       perSystem = { config, self', inputs', pkgs, system, ... }:
-        with pkgs; with builtins; rec {
-          packages = listToAttrs (callPackage ./packages { inherit pkgs crane; });
-          devShells.default = callPackage ./shell.nix { inherit pkgs packages; };
+        with pkgs; let
+          externalPackages = {
+            inherit terraform;
+          };
+        in with builtins; rec {
+          packages = externalPackages // listToAttrs (callPackage ./packages { inherit pkgs crane; });
+          devShells.default = mkShell {
+            name = "starling";
+            PCLI_UNLEASH_DANGER = 1;
+            buildInputs = attrValues externalPackages ++ attrValues packages;
+          };
 
           # Permits unfree licenses, thank you to <https://jamesconroyfinn.com/til/flake-parts-and-unfree-packages>
           _module.args.pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
