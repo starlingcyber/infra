@@ -15,15 +15,15 @@
       systems = [ "x86_64-linux" ];
       perSystem = { config, self', inputs', pkgs, system, ... }:
         with pkgs; let
-          externalPackages = {
+          external = {
             inherit terraform;
           };
         in with builtins; rec {
-          packages = externalPackages // listToAttrs (callPackage ./packages { inherit pkgs crane; });
+          packages = external // listToAttrs (callPackage ./packages { inherit pkgs crane; });
           devShells.default = mkShell {
             name = "starling";
             PCLI_UNLEASH_DANGER = 1;
-            buildInputs = attrValues externalPackages ++ attrValues packages;
+            buildInputs = attrValues external ++ attrValues packages;
           };
 
           # Permits unfree licenses, thank you to <https://jamesconroyfinn.com/til/flake-parts-and-unfree-packages>
