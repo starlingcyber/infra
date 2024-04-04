@@ -1,11 +1,10 @@
-{ pkgs ? import <nixpkgs> {}, cometbft, horcrux, penumbra }:
+{ pkgs ? import <nixpkgs> {}, localPackages }:
 
-with pkgs; mkShell {
+with pkgs; let extraPackages = [
+  terraform
+];
+
+in with builtins; mkShell {
   PCLI_UNLEASH_DANGER = 1;
-  buildInputs = [
-    terraform
-    cometbft
-    horcrux
-    penumbra
-  ];
+  buildInputs = extraPackages ++ map (a: a.value) localPackages;
 }
