@@ -1,0 +1,1 @@
+op run --env-file="./.env" -- nix develop --command "$SHELL"
