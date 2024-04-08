@@ -16,7 +16,7 @@
       perSystem = { config, self', inputs', pkgs, system, ... }:
         with pkgs; with builtins; rec {
           packages =
-            import ./external.nix { inherit pkgs; } //
+            import ./reexport.nix { inherit pkgs; } //
             import ./packages { inherit pkgs crane; };
           devShells.default = mkShell {
             name = "starling";
