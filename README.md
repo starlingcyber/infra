@@ -14,5 +14,7 @@ if you have the 1Password command line tools installed and configured.
 
 ## Adding packages
 
-To add local packages to the flake, add nix files to `packages/` (see [the packages
-README](./packages/README.md) for more details).
+To add packages to the flake which are present in nixpkgs, add them to  `external.nix`. To add local
+packages to the flake (i.e. packages which cannot be found in nixpkgs, or need to be configured
+specially), add nix files to `packages` (see [the packages README](./packages/README.md) for more
+details).

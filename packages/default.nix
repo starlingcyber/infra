@@ -23,4 +23,4 @@ let
     name = removeSuffix ".nix" name;
     value = callPackage ./${name} inputs;
   };
-in map mkPackage packagePaths
+in listToAttrs (map mkPackage packagePaths)
