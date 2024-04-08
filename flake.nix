@@ -22,8 +22,7 @@
           packages = external // listToAttrs (callPackage ./packages { inherit pkgs crane; });
           devShells.default = mkShell {
             name = "starling";
-            PCLI_UNLEASH_DANGER = 1;
-            buildInputs = attrValues external ++ attrValues packages;
+            buildInputs = attrValues packages;
           };
 
           # Permits unfree licenses, thank you to <https://jamesconroyfinn.com/til/flake-parts-and-unfree-packages>
