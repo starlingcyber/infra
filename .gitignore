@@ -3,3 +3,6 @@ result
 
 # Direnv
 .direnv
+
+# 1Password secret reference env file
+secret.env

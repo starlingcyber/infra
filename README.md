@@ -6,11 +6,11 @@ Pop into a `nix develop` environment (or let `direnv` do that for you) and you'l
 the command line tooling needed to do operations, including Penumbra tools (`pcli`, `pd`,
 `pclientd`), `cometbft`, `horcrux`, `tenderduty`, and more (to be added).
 
-To get access to production deployment keys, run `./login`, which will authenticate with your local
-1Password instance to load the relevant environment variables into a subshell. Note that this shell
-will be running with a filter censoring output from directly containing secrets, but as a
-side-effect of the filter, interactive TUI programs don't seem to work very well. Use this only as a
-command interface to issue deployment commands.
+To get access to production deployment keys, make a secondary environment file called `secret.env`
+which uses [1Password secret
+references](https://developer.1password.com/docs/cli/secrets-environment-variables#use-environment-env-files)
+for its values. This will be automatically loaded by `direnv` when you enter the project directory
+if you have the 1Password command line tools installed and configured.
 
 ## Adding packages
 
