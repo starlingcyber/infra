@@ -1,8 +1,4 @@
-inputs @ { pkgs ? import <nixpkgs> {}, ... }:
-
-with builtins;
-with pkgs;
-with lib;
+inputs @ { pkgs, ... }:
 
 # Automatically import all nix files in the current directory as individual packages. If any build
 # gets complicated enough that it needs a separate directory, it can be placed in a subdirectory
@@ -10,7 +6,7 @@ with lib;
 # available automatically in the `nix develop` shell, as well as defined as a buildable package
 # target for the top level flake.
 
-let
+with builtins; with pkgs; with lib; let
   directory = (readDir ./.);
   files = filter (name: directory.${name} == "regular") (attrNames directory);
   directories = filter (name: directory.${name} == "directory") (attrNames directory);
