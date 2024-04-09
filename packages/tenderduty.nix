@@ -1,4 +1,4 @@
-{ pkgs ? import <nixpkgs> {}, ... }: let
+{ pkgs, ... }: let
 
 name = "tenderduty";
 owner = "blockpane";

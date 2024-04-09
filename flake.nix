@@ -15,9 +15,7 @@
       systems = [ "x86_64-linux" ];
       perSystem = { config, self', inputs', pkgs, system, ... }:
         with pkgs; with builtins; rec {
-          packages =
-            import ./reexport.nix { inherit pkgs; } //
-            import ./packages { inherit pkgs crane; };
+          packages = import ./packages { inherit pkgs crane; };
           devShells.default = mkShell {
             name = "starling";
             buildInputs = attrValues packages;

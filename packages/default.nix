@@ -21,6 +21,6 @@ let
     filter (name: (readDir ./${name})."default.nix" == "regular") directories;
   mkPackage = name: {
     name = removeSuffix ".nix" name;
-    value = callPackage ./${name} inputs;
+    value = import ./${name} inputs;
   };
 in listToAttrs (map mkPackage packagePaths)

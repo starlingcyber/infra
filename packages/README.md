@@ -7,4 +7,4 @@ Any nix file in this directory will be detected and added as a package, and any 
 a `default.nix` file will be detected similarly (use the latter to add more complex packages that
 require multiple files).
 
-If a package is available in nixpkgs, prefer instead to add it to `../reexport.nix`.
+To re-export a package that exists in `nixpkgs`, add it to the list in `reexport.nix`.

@@ -1,4 +1,4 @@
-{ pkgs ? import <nixpkgs> {}, ... }: let
+{ pkgs, ... }: let
 
 name = "horcrux";
 owner = "strangelove-ventures";

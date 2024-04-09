@@ -1,4 +1,4 @@
-{ pkgs ? import <nixpkgs> {}, crane, ... }: let
+{ pkgs, crane, ... }: let
 
 name = "penumbra";
 owner = "penumbra-zone";
