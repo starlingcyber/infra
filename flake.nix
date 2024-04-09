@@ -12,13 +12,16 @@
 
   outputs = inputs @ { self, nixpkgs, flake-parts, crane, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
+      flake = {};
       systems = [ "x86_64-linux" ];
       perSystem = { config, self', inputs', pkgs, system, ... }:
-        with pkgs; with builtins; rec {
-          packages = import ./packages { inherit pkgs crane; };
+        with pkgs; with builtins; let
+          exported = import ./packages { inherit pkgs crane; };
+        in rec {
+          packages = exported // { all = symlinkJoin { name = "all"; paths = attrValues exported; }; };
           devShells.default = mkShell {
             name = "starling";
-            buildInputs = attrValues packages;
+            buildInputs = attrValues exported;
           };
 
           # Permits unfree licenses, for example for terraform
