@@ -1,5 +1,5 @@
 {
-  description = "A flake for Penumbra infrastructure software";
+  description = "An opinionated flake providing software and services for Penumbra infrastructure";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/release-23.11";
@@ -25,17 +25,14 @@
             pclientd = "${packages.penumbra}/bin/pclientd";
             # Add any future Penumbra package commands here
           };
-        in let
-          nonDefault = packages:
-            map (name: packages.${name})
-              (filter (name: name != "default") (attrNames packages));
         in {
-          devShells.default = mkShell { buildInputs = nonDefault packages; };
+          devShells.default = mkShell { buildInputs = attrValues packages; };
           apps = mkApps apps;
           packages = packages // {
             default = symlinkJoin {
               name = "penumbra-default";
-              paths = nonDefault packages;
+              paths = map (name: packages.${name})
+                (filter (name: name != "default") (attrNames packages));
             };
           };
         };
