@@ -8,7 +8,7 @@
 
 with builtins; with nixpkgs.lib;
 
-{
+rec {
   importAll = path: inputs: let
     directory = readDir path;
     files = filter (name: directory.${name} == "regular") (attrNames directory);
@@ -22,4 +22,8 @@ with builtins; with nixpkgs.lib;
       value = import "${path}/${name}" inputs;
     };
     in listToAttrs (map mkPackage packagePaths);
+
+  mkApp = name: program: { "${name}" = { type = "app"; inherit program; }; };
+
+  mkApps = concatMapAttrs mkApp;
 }

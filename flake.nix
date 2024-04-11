@@ -18,12 +18,21 @@
       systems = [ "x86_64-linux" ];
       perSystem = { pkgs, ... }:
         with pkgs; with builtins; let
+          packages = importAll ./packages { inherit pkgs crane; };
+          apps = {
+            pd = "${packages.penumbra}/bin/pd";
+            pcli = "${packages.penumbra}/bin/pcli";
+            pclientd = "${packages.penumbra}/bin/pclientd";
+            # Add any future Penumbra package commands here
+          };
+        in let
           nonDefault = packages:
             map (name: packages.${name})
               (filter (name: name != "default") (attrNames packages));
-        in rec {
+        in {
           devShells.default = mkShell { buildInputs = nonDefault packages; };
-          packages = importAll ./packages { inherit pkgs crane; } // {
+          apps = mkApps apps;
+          packages = packages // {
             default = symlinkJoin {
               name = "penumbra-default";
               paths = nonDefault packages;
