@@ -1,16 +1,12 @@
-self: {
-  config,
-  pkgs,
-  lib,
-  ...
-}:
+self: { config, pkgs, lib, ...  }:
+
 with lib; let
   cfg = config.penumbra.services.pd;
 in {
   imports = [];
 
   options.penumbra.services.pd = {
-    enable = mkEnableOption "Enables the Penumbra fullnode daemon";
+    enable = mkEnableOption "Enables the Penumbra fullnode daemon and its CometBFT sidecar";
   };
 
   config = mkIf cfg.enable {
