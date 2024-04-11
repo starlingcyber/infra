@@ -16,7 +16,7 @@
       flake.nixosModules = importAll ./modules self;
       flake.lib = { inherit util; };
       systems = [ "x86_64-linux" ];
-      perSystem = { config, self', inputs', pkgs, system, ... }:
+      perSystem = { pkgs, ... }:
         with pkgs; with builtins; let
           nonDefault = packages:
             map (name: packages.${name})
