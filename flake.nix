@@ -28,6 +28,6 @@
               paths = nonDefault packages;
             };
           };
+        };
     };
-  };
 }

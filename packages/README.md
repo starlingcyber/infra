@@ -6,5 +6,3 @@ well as being automatically defined as a `package` output of the flake.
 Any nix file in this directory will be detected and added as a package, and any directory containing
 a `default.nix` file will be detected similarly (use the latter to add more complex packages that
 require multiple files).
-
-To re-export a package that exists in `nixpkgs`, add it to the list in `reexport.nix`.
