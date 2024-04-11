@@ -11,9 +11,10 @@
   };
 
   outputs = inputs @ { self, nixpkgs, flake-parts, crane, ... }:
-    with import ./util.nix { inherit nixpkgs; };
+    let util = import ./util.nix { inherit nixpkgs; }; in with util;
     flake-parts.lib.mkFlake { inherit inputs; } {
       flake.nixosModules = importAll ./modules self;
+      flake.lib = { inherit util; };
       systems = [ "x86_64-linux" ];
       perSystem = { config, self', inputs', pkgs, system, ... }:
         with pkgs; with builtins; let
