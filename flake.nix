@@ -1,5 +1,5 @@
 {
-  description = "The root nix flake for Starling Cybernetics infrastructure";
+  description = "A flake for Penumbra infrastructure software";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/release-23.11";
@@ -11,21 +11,23 @@
   };
 
   outputs = inputs @ { self, nixpkgs, flake-parts, crane, ... }:
+    with import ./util.nix { inherit nixpkgs; };
     flake-parts.lib.mkFlake { inherit inputs; } {
-      flake = {};
+      flake.nixosModules = importAll ./modules self;
       systems = [ "x86_64-linux" ];
       perSystem = { config, self', inputs', pkgs, system, ... }:
         with pkgs; with builtins; let
-          exported = import ./packages { inherit pkgs crane; };
+          nonDefault = packages:
+            map (name: packages.${name})
+              (filter (name: name != "default") (attrNames packages));
         in rec {
-          packages = exported // { all = symlinkJoin { name = "all"; paths = attrValues exported; }; };
-          devShells.default = mkShell {
-            name = "starling";
-            buildInputs = attrValues exported;
+          devShells.default = mkShell { buildInputs = nonDefault packages; };
+          packages = importAll ./packages { inherit pkgs crane; } // {
+            default = symlinkJoin {
+              name = "penumbra-default";
+              paths = nonDefault packages;
+            };
           };
-
-          # Permits unfree licenses, for example for terraform
-          _module.args.pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
     };
   };
 }
