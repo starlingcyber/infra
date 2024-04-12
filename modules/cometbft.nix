@@ -310,6 +310,7 @@ in {
         NoExecPaths = [ "/" ];
         ExecPaths = [
           startScript
+          "${pkgs.bash}/bin/bash"
           "${cometbft}"
           "${pkgs.coreutils}/bin/mkdir"
           "${pkgs.coreutils}/bin/cp"
