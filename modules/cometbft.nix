@@ -11,6 +11,7 @@ with lib; let
     version = cometbft.version;
     proxy_app = "tcp://${cfg.proxyApp.ip}:${toString cfg.proxyApp.port}";
     moniker = cfg.moniker;
+    block_sync = true;
     db_backend = "goleveldb";
     db_dir = cfg.dataDir;
     log_level = "info";
