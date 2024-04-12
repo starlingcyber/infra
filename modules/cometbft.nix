@@ -335,11 +335,11 @@ in {
         # ProtectSystem = "strict";
         # NoExecPaths = [ "/" ];
         # InaccessiblePaths = [ "/" ];
-        ExecPaths = [
-          "${cometbft}/bin/cometbft"
-          "${pkgs.bash}/bin/bash"
-          "${pkgs.coreutils}/bin/mkdir"
-          "${pkgs.coreutils}/bin/cp"
+        # ExecPaths = [
+        #   "${cometbft}"
+        #   "${pkgs.bash}/bin/bash"
+        #   "${pkgs.coreutils}/bin/mkdir"
+        #   "${pkgs.coreutils}/bin/cp"
         ];
         # ReadOnlyPaths = [ initialHomeDir ];
         # ReadWritePaths = [ cfg.dataDir cfg.homeDir ];
