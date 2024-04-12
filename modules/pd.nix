@@ -31,13 +31,13 @@ in {
 
     metrics.port = mkOption {
       type = types.int;
-      default = null;
+      default = 9000;
       description = "The port on which the Penumbra daemon will expose Prometheus metrics";
     };
 
     grpc.bind = mkOption {
       type = types.str;
-      default = null;
+      default = if cfg.grpc.autoHttps.enable then "0.0.0.0:443" else "127.0.0.1:8080";
       description = "The address at which the Penumbra daemon will listen for gRPC connections";
     };
 
