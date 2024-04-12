@@ -131,7 +131,7 @@ in {
     };
 
     p2p.seedMode = mkOption {
-      type = tyeps.bool;
+      type = types.bool;
       default = false;
       description = "Whether to enable seed mode, which crawls the network looking for peers to broadcast";
     };
