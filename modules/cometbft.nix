@@ -185,7 +185,7 @@ in {
       description = "The connection string for the PostgreSQL database to use for indexing transactions";
     };
 
-    consensus.double_sign_check_height = mkOption {
+    consensus.doubleSignCheckHeight = mkOption {
       type = types.int;
       default = 0;
       description = "How many blocks to look back to check existence of the node's consensus votes before joining consensus";
@@ -281,7 +281,7 @@ in {
             timeout_precommit = "1000ms";
             timeout_precommit_delta = "500ms";
             timeout_commit = "5000ms";
-            double_sign_check_height = cfg.double_sign_check_height;
+            double_sign_check_height = cfg.consensus.doubleSignCheckHeight;
             skip_timeout_commit = false;
             create_empty_blocks = true;
             create_empty_blocks_interval = "0ms";
