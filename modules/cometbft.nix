@@ -8,7 +8,7 @@ in {
 
     dataDir = mkOption {
       type = types.str;
-      default = "/var/lib/penumbra/cometbft";
+      default = "/var/lib/penumbra/cometbft/data";
       description = "The home directory for CometBFT";
     };
 
@@ -303,8 +303,10 @@ in {
         configDir = pkgs.writeTextDir "/config/config.toml" (readFile configToml);
       in {
         Restart = "on-failure";
+        RuntimeDirectory = "penumbra/cometbft";
         ExecStart = ''
-          ${cometbft}/bin/cometbft start --home ${configDir}
+          cp -r ${configDir}/* /run/penumbra/cometbft
+          ${cometbft}/bin/cometbft start --home /run/penumbra/cometbft
         '';
         # TODO: Gradually test and fill in the security policy, after confirming it works at all
         # DynamicUser = "yes";
