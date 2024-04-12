@@ -305,15 +305,6 @@ in {
     # Add the cometbft executable to the environment
     environment.systemPackages = [ cometbft ];
 
-    # Add a new user and group for cometbft specifically
-    users.groups.cometbft = {};
-    users.users.cometbft = {
-      isSystemUser = true;
-      home = cfg.homeDir;
-      group = "cometbft";
-      description = "CometBFT consensus engine";
-    };
-
     systemd.services.${cfg.serviceName} = {
       wantedBy = ["multi-user.target"];
       serviceConfig =  {
@@ -335,9 +326,6 @@ in {
              ${cometbft}/bin/cometbft init --home ${cfg.homeDir} && \
              ${cometbft}/bin/cometbft start --home ${cfg.homeDir}"
         '';
-        # Use the cometbft user and group
-        User = "cometbft";
-        Group = "cometbft";
         # Prevent privilege escalation
         NoNewPrivileges = "yes";
         RestrictSUIDSGID = "yes";
