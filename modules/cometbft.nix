@@ -315,7 +315,8 @@ in {
           paths = [ configInDir genesisInDir ];
         };
       in {
-        Restart = "on-failure";
+        # Restart = "on-failure";
+        Restart = "no";
         # This creates a directory at /var/lib/penumbra/cometbft
         StateDirectory = "penumbra/cometbft";
         ExecStart = ''
@@ -334,8 +335,14 @@ in {
         # ProtectSystem = "strict";
         # NoExecPaths = [ "/" ];
         # InaccessiblePaths = [ "/" ];
-        ExecPaths = [ "${cometbft}/bin/cometbft" ];
-        ReadWritePaths = [ cfg.dataDir cfg.homeDir ];
+        ExecPaths = [
+          "${cometbft}/bin/cometbft"
+          "${pkgs.bash}/bin/bash"
+          "${pkgs.coreutils}/bin/mkdir"
+          "${pkgs.coreutils}/bin/cp"
+        ];
+        # ReadOnlyPaths = [ initialHomeDir ];
+        # ReadWritePaths = [ cfg.dataDir cfg.homeDir ];
       };
     };
   };
