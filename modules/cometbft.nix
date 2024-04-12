@@ -301,17 +301,17 @@ in {
         };
         configInDir = pkgs.writeTextDir "/config/config.toml" (readFile configToml);
         genesisInDir = pkgs.writeTextDir "/config/genesis.json" (readFile cfg.genesisFile);
-        configDir = pkgs.symlinkJoin {
+        homeDir = pkgs.symlinkJoin {
           name = "penumbra-cometbft-home";
           paths = [ configInDir genesisInDir ];
         };
       in {
         Restart = "on-failure";
+        # This creates a temporary directory at /run/penumbra/cometbft
         RuntimeDirectory = "penumbra/cometbft";
         ExecStart = ''
           ${pkgs.bash}/bin/bash -c \
-            "${pkgs.coreutils}/bin/cp -r ${configDir}/* /run/penumbra/cometbft && \
-             ${pkgs.tree}/bin/tree /run/penumbra/cometbft && \
+            "${pkgs.coreutils}/bin/ln -s ${homeDir}/config /run/penumbra/cometbft/config && \
              ${cometbft}/bin/cometbft start --home /run/penumbra/cometbft"
         '';
         # TODO: Gradually test and fill in the security policy, after confirming it works at all
