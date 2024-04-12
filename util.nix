@@ -68,5 +68,5 @@ rec {
     # Prevent dynamic code execution (and if everything is mounted noexec except the Nix store,
     # files written to disk by the service cannot be executed to get around this)
     MemoryDenyWriteExecute = if allowExecMemory then "no" else "yes";
-  }
+  };
 }
