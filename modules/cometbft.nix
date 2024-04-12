@@ -315,12 +315,7 @@ in {
         ReadOnlyPaths = [ "/" ];
         ReadWritePaths = [ "/run" "-${cfg.dataDir}" "-${cfg.homeDir}" ];
         NoExecPaths = [ "/" ];
-        ExecPaths = [
-          "${cometbft}/bin/cometbft"
-          "${pkgs.bash}/bin/bash"
-          "${pkgs.coreutils}/bin/mkdir"
-          "${pkgs.coreutils}/bin/cp"
-        ];
+        ExecPaths = [ "/nix/store" ];
       };
     };
   };
