@@ -206,7 +206,7 @@ in {
         configToml = (pkgs.formats.toml {}).generate "penumbra-cometbft-config" {
           version = cometbft.version;
           proxy_app = "tcp://${cfg.proxyApp.ip}:${cfg.proxyApp.port}";
-          inherit moniker;
+          moniker = cfg.moniker;
           db_backend = "goleveldb";
           db_dir = cfg.dataDir;
           log_level = "info";
