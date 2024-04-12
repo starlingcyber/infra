@@ -45,7 +45,7 @@ with lib; with self.lib.util; let
       external_address = cfg.p2p.externalAddress;
       seeds = concatStringsSep "," cfg.p2p.seeds;
       persistent_peers = concatStringsSep "," cfg.p2p.persistentPeers;
-      addr_book_file = cfg.p2p.addrBook;
+      addr_book_file = cfg.p2p.addrBookFile;
       addr_book_strict = cfg.p2p.addrBookStrict;
       max_num_inbound_peers = cfg.p2p.maxPeers.inbound;
       max_num_outbound_peers = cfg.p2p.maxPeers.outbound;
@@ -191,9 +191,9 @@ in {
       description = "The list of persistent peers with which CometBFT will maintain connections";
     };
 
-    p2p.addrBook = mkOption {
+    p2p.addrBookFile = mkOption {
       type = types.str;
-      default = "";
+      default = "config/addrbook.json";
       description = "The file containing the address book for CometBFT";
     };
 
