@@ -249,7 +249,7 @@ in {
             addr_book_strict = cfg.p2p.addrBookStrict;
             max_num_inbound_peers = cfg.p2p.maxPeers.inbound;
             max_num_outbound_peers = cfg.p2p.maxPeers.outbound;
-            unconditional_peer_ids = concatStringSetp "," cfg.p2p.unconditionalPeerIds;
+            unconditional_peer_ids = concatStringSep "," cfg.p2p.unconditionalPeerIds;
             persistent_peers_max_dial_period = "0s";
             flush_throttle_timeout = "100ms";
             max_packet_msg_payload_size = 1024;
