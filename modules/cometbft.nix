@@ -293,37 +293,34 @@ in {
           name = "penumbra-cometbft-home";
           paths = [ configInDir genesisInDir ];
         };
-        startScript = pkgs.writeShellScript "penumbra-cometbft-start" ''
-          ${pkgs.coreutils}/bin/mkdir -p ${cfg.homeDir} && \
-          ${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir} && \
-          ${pkgs.coreutils}/bin/cp -rf ${initialHomeDir}/config ${cfg.homeDir} && \
-          ${cometbft}/bin/cometbft init --home ${cfg.homeDir} && \
-          ${cometbft}/bin/cometbft start --home ${cfg.homeDir}
-        '';
       in {
         # Restart = "on-failure";
         Restart = "no";
         # This creates a directory at /var/lib/penumbra/cometbft
         StateDirectory = "penumbra/cometbft";
-        ExecStart = startScript;
-        # Only permit the absolutely necessary executables
-        NoExecPaths = [ "/" ];
-        ExecPaths = [
-          startScript
-          "${pkgs.bash}/bin/bash"
-          "${cometbft}"
-          "${pkgs.coreutils}/bin/mkdir"
-          "${pkgs.coreutils}/bin/cp"
-        ];
+        ExecStart = ''
+          ${pkgs.bash}/bin/bash -c \
+            "${pkgs.coreutils}/bin/mkdir -p ${cfg.homeDir} && \
+             ${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir} && \
+             ${pkgs.coreutils}/bin/cp -rf ${initialHomeDir}/config ${cfg.homeDir} && \
+             ${cometbft}/bin/cometbft init --home ${cfg.homeDir} && \
+             ${cometbft}/bin/cometbft start --home ${cfg.homeDir}"
+        '';
         # TODO: Gradually test and fill in the security policy, after confirming it works at all
         # DynamicUser = "yes";
         # NoNewPrivileges = "yes";
         # RestrictSUIDSGID = "yes";
         # ProtectHome = "yes";
         # ProtectSystem = "strict";
-        # InaccessiblePaths = [ "/" ];
-        # ReadOnlyPaths = [ initialHomeDir ];
-        # ReadWritePaths = [ cfg.dataDir cfg.homeDir ];
+        ReadOnlyPaths = [ "/" ];
+        ReadWritePaths = [ "/run" cfg.dataDir cfg.homeDir ];
+        NoExecPaths = [ "/" ];
+        ExecPaths = [
+          "${cometbft}/bin/cometbft"
+          "${pkgs.bash}/bin/bash"
+          "${pkgs.coreutils}/bin/mkdir"
+          "${pkgs.coreutils}/bin/cp"
+        ];
       };
     };
   };
