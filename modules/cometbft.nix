@@ -1,7 +1,7 @@
 self: { config, pkgs, lib, ...  }:
 
 with lib; with self.lib.util; let
-  cfg = config.penumbra.services.cometbft;
+  cfg = config.services.cometbft;
 
   # Shorthand for the package, used below
   cometbft = self.packages.${pkgs.system}.cometbft;
