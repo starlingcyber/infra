@@ -305,8 +305,9 @@ in {
         Restart = "on-failure";
         RuntimeDirectory = "penumbra/cometbft";
         ExecStart = ''
-          ${pkgs.coreutils}/bin/cp -r ${configDir} /run/penumbra/cometbft
-          ${cometbft}/bin/cometbft start --home /run/penumbra/cometbft
+          ${pkgs.bash}/bin/bash -c \
+            "${pkgs.coreutils}/bin/cp -r ${configDir} /run/penumbra/cometbft && \
+             ${cometbft}/bin/cometbft start --home /run/penumbra/cometbft"
         '';
         # TODO: Gradually test and fill in the security policy, after confirming it works at all
         # DynamicUser = "yes";
