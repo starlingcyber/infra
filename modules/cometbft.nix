@@ -300,10 +300,7 @@ in {
           tx_index.psql_conn = cfg.txIndex.psqlConn;
           statesync.enable = false;
         };
-        configDir = symlinkJoin {
-          name = "penumbra-cometbft-home-dir";
-          paths = [ configToml ];
-        };
+        configDir = pkgs.writeTextDir "penumbra-cometbft-home/config.toml" configToml;
       in {
         Restart = "on-failure";
         ExecStart = ''
