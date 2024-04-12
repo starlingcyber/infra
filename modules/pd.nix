@@ -1,7 +1,7 @@
 self: { config, pkgs, lib, ...  }:
 
 with lib; with self.lib.util; let
-  cfg = config.penumbra.services.pd;
+  cfg = config.services.penumbra.pd;
 
   # Shorthand for the package, used below
   penumbra = self.packages.${pkgs.system}.penumbra;
