@@ -300,13 +300,9 @@ in {
           tx_index.psql_conn = cfg.txIndex.psqlConn;
           statesync.enable = false;
         };
-        configDir = derivation {
+        configDir = symlinkJoin {
           name = "penumbra-cometbft-home-dir";
-          system = pkgs.system;
-          builder = "${pkgs.bash}/bin/bash";
-          args = [ "-c" ''
-            mkdir -p "$out" && cp "${configToml}" "$out/config.toml"
-          '' ];
+          paths = [ configToml ];
         };
       in {
         Restart = "on-failure";
