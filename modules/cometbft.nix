@@ -300,13 +300,12 @@ in {
           tx_index.psql_conn = cfg.txIndex.psqlConn;
           statesync.enable = false;
         };
-        configDir = pkgs.stdenv.mkDerivation {
+        configDir = derivation {
           name = "penumbra-cometbft-home-dir";
-          src = configToml;
-          installPhase = ''
-            mkdir -p "$out"
-            cp "$src" "$out/config.toml"
-          '';
+          builder = "${pkgs.stdenv}/bin/bash";
+          args = [ "-c" ''
+            mkdir -p "$out" && cp "${configToml}" "$out/config.toml"
+          '' ];
         };
       in {
         Restart = "on-failure";
