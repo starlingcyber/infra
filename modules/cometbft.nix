@@ -191,10 +191,16 @@ in {
   };
 
   config = mkIf cfg.enable {
+    # Add the cometbft executable to the environment
+    environment.systemPackages = [ self.packages.${pkgs.system}.cometbft ];
+
     systemd.services."penumbra.cometbft" = {
       wantedBy = ["multi-user.target"];
       serviceConfig = with strings; let
+        # Shorthand for the package, used below
         cometbft = self.packages.${pkgs.system}.cometbft;
+
+        # Write a config.toml file for CometBFT given the configuration options
         configToml = (pkgs.formats.toml {}).generate "penumbra-cometbft-config" {
           version = cometbft.version;
           proxy_app = "tcp://${cfg.proxyApp.ip}:${toString cfg.proxyApp.port}";
@@ -296,7 +302,8 @@ in {
       in {
         # Restart = "on-failure";
         Restart = "no";
-        # This creates a directory at /var/lib/penumbra/cometbft
+        # This creates a directory at `/var/lib/penumbra/cometbft` unconditionally, though it may
+        # not actually be used if the home directory and/or data directory are both overridden:
         StateDirectory = "penumbra/cometbft";
         ExecStart = ''
           ${pkgs.bash}/bin/bash -c \
@@ -306,14 +313,27 @@ in {
              ${cometbft}/bin/cometbft init --home ${cfg.homeDir} && \
              ${cometbft}/bin/cometbft start --home ${cfg.homeDir}"
         '';
-        # TODO: Gradually test and fill in the security policy, after confirming it works at all
-        # DynamicUser = "yes";
-        # NoNewPrivileges = "yes";
-        # RestrictSUIDSGID = "yes";
-        # ProtectHome = "yes";
-        # ProtectSystem = "strict";
+        # Restrictive security policy...
+        DynamicUser = "yes";
+        # Prevent privilege escalation
+        NoNewPrivileges = "yes";
+        RestrictSUIDSGID = "yes";
+        # Don't allow access to any user home directories
+        ProtectHome = "yes";
+        # Protect parts of the system from access and modification
+        ProtectSystem = "strict";
+        ProtectKernelLogs = "yes";
+        ProtectKernelModules = "yes";
+        ProtectKernelTunables = "yes";
+        ProtectControlGroups = "yes";
+        # We don't use UNIX sockets, so we can disable them
+        RestrictAddressFamilies = [ "AF_INET" "AF_INET6" ];
+        # Only permit writes to `/run` (needed for mount points) and the data and home directories
+        # of CometBFT, so that an exploit of CometBFT cannot write to any other part of the system
         ReadOnlyPaths = [ "/" ];
         ReadWritePaths = [ "/run" "-${cfg.dataDir}" "-${cfg.homeDir}" ];
+        # Only allow execution from the Nix store (which is mounted read-only) so that an exploit
+        # cannot execute arbitrary code that it writes to a writable directory
         NoExecPaths = [ "/" ];
         ExecPaths = [ "/nix/store" ];
       };
