@@ -318,7 +318,7 @@ in {
       wantedBy = ["multi-user.target"];
       wants = [ "network-online.target" ];
       serviceConfig =  {
-        Restart = "on-failure";
+        Restart = "no";
         # This creates a directory at `/var/lib/${cfg.serviceName}` unconditionally, though it may
         # not actually be used if the home directory and/or data directory are both overridden:
         StateDirectory = cfg.serviceName;

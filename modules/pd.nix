@@ -71,7 +71,7 @@ in {
       wantedBy = ["multi-user.target"];
       wants = [ "network-online.target" "${config.services.cometbft.serviceName}.service" ];
       serviceConfig = {
-        Restart = "on-failure";
+        Restart = "no";
         # This creates a directory at `/var/lib/${cfg.serviceName}` unconditionally, though it may
         # not actually be used if the data directory is overridden:
         StateDirectory = cfg.serviceName;
