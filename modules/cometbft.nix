@@ -212,7 +212,6 @@ in {
           db_dir = cfg.dataDir;
           log_level = "info";
           log_format = "plain";
-          genesis_file = cfg.genesisFile;
           priv_validator_key_file = cfg.privValidator.key ? "";
           priv_validator_state_file = cfg.privValidator.state;
           priv_validator_laddr =
@@ -300,7 +299,12 @@ in {
           tx_index.psql_conn = cfg.txIndex.psqlConn;
           statesync.enable = false;
         };
-        configDir = pkgs.writeTextDir "/config/config.toml" (readFile configToml);
+        configInDir = pkgs.writeTextDir "/config/config.toml" (readFile configToml);
+        genesisInDir = pkgs.writeTextDir "/config/genesis.json" (readFile cfg.genesisFile);
+        configDir = pkgs.symlinkJoin {
+          name = "penumbra-cometbft-home";
+          paths = [ configInDir genesisInDir ];
+        };
       in {
         Restart = "on-failure";
         RuntimeDirectory = "penumbra/cometbft";
