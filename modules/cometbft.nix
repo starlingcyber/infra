@@ -323,7 +323,7 @@ in {
           ${pkgs.bash}/bin/bash -c \
             "${pkgs.coreutils}/bin/mkdir -p ${cfg.homeDir} && \
              ${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir} && \
-             ${pkgs.coreutils}/bin/cp -rf ${initialHomeDir}/config/* ${cfg.homeDir}/config && \
+             ${pkgs.coreutils}/bin/cp -rf ${initialHomeDir}/config ${cfg.homeDir} && \
              ${cometbft}/bin/cometbft init --home ${cfg.homeDir} && \
              ${cometbft}/bin/cometbft start --home ${cfg.homeDir}"
         '';
