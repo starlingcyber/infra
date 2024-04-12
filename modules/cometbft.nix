@@ -6,24 +6,33 @@ in {
   options.penumbra.services.cometbft = {
     enable = mkEnableOption "Enables just CometBFT without automatically starting the Penumbra daemon";
 
-    dataDir = mkOption {
-      type = types.str;
-      default = "/var/lib/penumbra/cometbft/data";
+    homeDir = mkOption {
+      type = types.path;
+      default = "/var/lib/penumbra/cometbft";
       description = "The home directory for CometBFT";
     };
 
-    nodeKey = mkOption {
+    dataDir = mkOption {
       type = types.str;
+      default = "${cfg.homeDir}/data";
+      description = "The home directory for CometBFT";
+    };
+
+    nodeKeyFile = mkOption {
+      type = types.str;
+      default = "${cfg.homeDir}/config/node_key.json"
       description = "The file containing the node's private key";
     };
 
-    privValidator.key = mkOption {
+    privValidator.keyFile = mkOption {
       type = types.str;
+      default = "${cfg.homeDir}/config/priv_validator_key.json";
       description = "The file containing the node's private validator key";
     };
 
-    privValidator.state = mkOption {
+    privValidator.stateFile = mkOption {
       type = types.str;
+      default = "${cfg.homeDir}/config/priv_validator_state.json";
       description = "The file containing the node's private validator state";
     };
 
@@ -212,13 +221,13 @@ in {
           db_dir = cfg.dataDir;
           log_level = "info";
           log_format = "plain";
-          priv_validator_key_file = cfg.privValidator.key ? "";
-          priv_validator_state_file = cfg.privValidator.state;
+          priv_validator_key_file = cfg.privValidator.keyFile ? "";
+          priv_validator_state_file = cfg.privValidator.stateFile ? "";
           priv_validator_laddr =
             if cfg.privValidator.laddr.enable
             then "tcp://${cfg.privValidator.laddr.ip}:${toString cfg.privValidator.laddr.port}"
             else "";
-          node_key_file = cfg.nodeKey;
+          node_key_file = cfg.nodeKeyFile;
           abci = "socket";
           filter_peers = false;
           rpc = mkIf cfg.rpc.enable {
@@ -301,20 +310,21 @@ in {
         };
         configInDir = pkgs.writeTextDir "/config/config.toml" (readFile configToml);
         genesisInDir = pkgs.writeTextDir "/config/genesis.json" (readFile cfg.genesisFile);
-        homeDir = pkgs.symlinkJoin {
+        initialHomeDir = pkgs.symlinkJoin {
           name = "penumbra-cometbft-home";
           paths = [ configInDir genesisInDir ];
         };
-        tempHome = "/run/penumbra/cometbft";
       in {
         Restart = "on-failure";
-        # This creates a temporary directory at /run/penumbra/cometbft
-        RuntimeDirectory = "penumbra/cometbft";
+        # This creates a directory at /var/lib/penumbra/cometbft
+        StateDirectory = "penumbra/cometbft";
         ExecStart = ''
           ${pkgs.bash}/bin/bash -c \
-            "${pkgs.coreutils}/bin/ln -s ${homeDir}/config ${tempHome}/config && \
-             ${cometbft}/bin/cometbft init --home ${tempHome} && \
-             ${cometbft}/bin/cometbft start --home ${tempHome}"
+            "${pkgs.coreutils}/bin/mkdir -p ${cfg.homeDir} && \
+             ${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir} && \
+             ${pkgs.coreutils}/bin/cp -rf ${initialHomeDir}/config/* ${cfg.homeDir}/config && \
+             ${cometbft}/bin/cometbft init --home ${cfg.homeDir} && \
+             ${cometbft}/bin/cometbft start --home ${cfg.homeDir}"
         '';
         # TODO: Gradually test and fill in the security policy, after confirming it works at all
         # DynamicUser = "yes";
@@ -324,12 +334,8 @@ in {
         # ProtectSystem = "strict";
         # NoExecPaths = [ "/" ];
         # InaccessiblePaths = [ "/" ];
-        # ExecPaths = [ "${cometbft}/bin/cometbft" ];
-        # ReadWritePaths = [ cfg.dataDir ];
-        # ReadOnlyPaths =
-        #   [ configDir nodeKey ] ++
-        #   (if cfg.privValidatorKey == null then [] else [ cfg.privValidatorKey ]) ++
-        #   (if cfg.privValidatorState == null then [] else [ cfg.privValidatorState ]);
+        ExecPaths = [ "${cometbft}/bin/cometbft" ];
+        ReadWritePaths = [ cfg.dataDir cfg.homeDir ];
       };
     };
   };
