@@ -29,6 +29,22 @@ in {
       description = "The path to the genesis file that will be used by the CometBFT service";
     };
 
+    metrics.port = mkOption {
+      type = types.int;
+      description = "The port on which the Penumbra daemon will expose Prometheus metrics";
+    };
+
+    grpc.bind = mkOption {
+      type = types.str;
+      description = "The address at which the Penumbra daemon will listen for gRPC connections";
+    };
+
+    grpc.autoHttps.enable =
+      mkEnableOption "Whether to automatically enable HTTPS for the server using Let's Encrypt";
+
+    grpc.autoHttps.production =
+      mkEnableOption "Whether to use the production (rate-limited) Let's Encrypt ACME endpoint for the gRPC server";
+
     RUST_LOG = mkOption {
       type = types.str;
       default = "info";
@@ -56,11 +72,18 @@ in {
         StateDirectory = cfg.serviceName;
         StateDirectoryMode = "0600";
         ExecStart = ''
-          ${pkgs.bash}/bin/bash -c \
-            "${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir} && \
-             ${pkgs.coreutils}/bin/chmod 0600 ${cfg.dataDir} && \
-             ${penumbra}/bin/pd start --home ${cfg.dataDir}"
-        '';
+          ${pkgs.bash}/bin/bash -c "\
+            ${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir} && \
+            ${pkgs.coreutils}/bin/chmod 0600 ${cfg.dataDir} && \
+            ${penumbra}/bin/pd start \
+              --home ${cfg.dataDir} \
+              ${if cfg.grpc.autoHttps.enable then "--grpc-auto-https" else ""} \
+              ${if cfg.grpc.autoHttps.production then "" else "--acme-staging"} \
+              ${if cfg.metrics.port == null then "" else "--metrics-bind 127.0.0.1:" + toString cfg.metrics.port} \
+              ${if cfg.grpc.bind == null then "" else "--grpc-bind " + cfg.grpc.bind} \
+              --abci-bind 127.0.0.1:${toString config.services.cometbft.proxyApp.port} \
+              --cometbft-addr 127.0.0.1:${toString config.services.cometbft.rpc.port} \
+        "'';
         # Raise filehandle limit for tower-abci
         LimitNOFILE = 65536;
         Environment = "RUST_LOG=${cfg.RUST_LOG}";
