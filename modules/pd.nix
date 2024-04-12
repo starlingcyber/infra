@@ -3,8 +3,9 @@ self: { config, pkgs, lib, ...  }:
 with lib; with self.lib.util; let
   cfg = config.services.penumbra.pd;
 
-  # Shorthand for the package, used below
+  # Shorthand for the packages, used below
   penumbra = self.packages.${pkgs.system}.penumbra;
+  cometbft = self.packages.${pkgs.system}.cometbft;
 in {
   imports = [ self.nixosModules.cometbft ];
 
