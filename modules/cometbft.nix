@@ -302,6 +302,7 @@ in {
         };
         configDir = derivation {
           name = "penumbra-cometbft-home-dir";
+          system = pkgs.system;
           builder = "${pkgs.stdenv}/bin/bash";
           args = [ "-c" ''
             mkdir -p "$out" && cp "${configToml}" "$out/config.toml"
