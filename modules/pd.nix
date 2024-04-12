@@ -42,7 +42,7 @@ in {
 
     systemd.services.${cfg.serviceName} = {
       wantedBy = ["multi-user.target"];
-      wants = [ "network-online.target" "${cometbft.serviceName}.service" ];
+      wants = [ "network-online.target" "${config.services.cometbft.serviceName}.service" ];
       serviceConfig = {
         Restart = "on-failure";
         # This creates a directory at `/var/lib/${cfg.serviceName}` unconditionally, though it may
