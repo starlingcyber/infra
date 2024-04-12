@@ -293,7 +293,7 @@ in {
           name = "penumbra-cometbft-home";
           paths = [ configInDir genesisInDir ];
         };
-        startScript = pkgs.writeShellScriptBin "penumbra-cometbft-start" ''
+        startScript = pkgs.writeShellScript "penumbra-cometbft-start" ''
           ${pkgs.coreutils}/bin/mkdir -p ${cfg.homeDir} && \
           ${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir} && \
           ${pkgs.coreutils}/bin/cp -rf ${initialHomeDir}/config ${cfg.homeDir} && \
