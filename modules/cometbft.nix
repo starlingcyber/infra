@@ -1,6 +1,6 @@
 self: { config, pkgs, lib, ...  }:
 
-with lib; let
+with lib; with self.lib.util; let
   cfg = config.penumbra.services.cometbft;
 
   # Shorthand for the package, used below
@@ -90,10 +90,10 @@ with lib; let
       peer_query_maj23_sleep_duration = "2000ms";
     };
     instrumentation = {
-      prometheus = toString cfg.prometheus.listenPort ? false;
-      prometheus_listen_addr = ":${toString cfg.prometheus.listenPort}";
-      max_open_connections = 3;
-      namespace = "cometbft";
+      prometheus = cfg.prometheus.enable;
+      prometheus_listen_addr = ":${toString cfg.prometheus.port}";
+      max_open_connections = cfg.prometheus.maxOpenConnections;
+      namespace = cfg.serviceName;
     };
     storage.discard_abci_responses = false;
     tx_index.indexer = cfg.txIndex.indexer;
@@ -109,7 +109,7 @@ with lib; let
     paths = [ configInDir genesisInDir ];
   };
 in {
-  options.penumbra.services.cometbft = {
+  options.services.cometbft = {
     enable = mkEnableOption "Enables just CometBFT without automatically starting the Penumbra daemon";
 
     homeDir = mkOption {
@@ -121,7 +121,7 @@ in {
     dataDir = mkOption {
       type = types.str;
       default = "${cfg.homeDir}/data";
-      description = "The home directory for CometBFT";
+      description = "The home directory for CometBFT (if a relative path, it will be relative to the home directory)";
     };
 
     privValidator.laddr.enable = mkEnableOption "Enables an external private validator";
@@ -289,10 +289,18 @@ in {
       description = "How many blocks to look back to check existence of the node's consensus votes before joining consensus";
     };
 
-    prometheus.listenPort = mkOption {
+    prometheus.enable = mkEnableOption "Enables Prometheus metrics for CometBFT";
+
+    prometheus.port = mkOption {
       type = types.port;
       default = 26660;
       description = "The port Prometheus will scrape for metrics";
+    };
+
+    prometheus.maxOpenConnections = mkOption {
+      type = types.int;
+      default = 3;
+      description = "The maximum number of open connections to Prometheus";
     };
 
     serviceName = mkOption {
@@ -308,9 +316,9 @@ in {
 
     systemd.services.${cfg.serviceName} = {
       wantedBy = ["multi-user.target"];
+      wants = [ "network-online.target" ];
       serviceConfig =  {
-        # Restart = "on-failure";
-        Restart = "no";
+        Restart = "on-failure";
         # This creates a directory at `/var/lib/${cfg.serviceName}` unconditionally, though it may
         # not actually be used if the home directory and/or data directory are both overridden:
         StateDirectory = cfg.serviceName;
@@ -325,36 +333,11 @@ in {
              ${cometbft}/bin/cometbft init --home ${cfg.homeDir} && \
              ${cometbft}/bin/cometbft start --home ${cfg.homeDir}"
         '';
-        # Prevent privilege escalation
-        NoNewPrivileges = "yes";
-        RestrictSUIDSGID = "yes";
-        PrivateUsers = "yes";
-        # Don't allow access to any user home directories
-        ProtectHome = "yes";
-        # Protect parts of the system from access and modification
-        ProtectSystem = "full";
-        ProtectKernelLogs = "yes";
-        ProtectKernelModules = "yes";
-        ProtectKernelTunables = "yes";
-        ProtectControlGroups = "yes";
-        ProtectClock = "yes";
-        ProtectHostname = "yes";
-        PrivateTmp = "yes";
-        # Restrict things that the service doesn't need to do
-        RestrictRealtime = "yes";
-        # Prevent dynamic code execution (and because everything is mounted noexec except the Nix
-        # store, files written to disk by the service cannot be executed to get around this)
-        MemoryDenyWriteExecute = "yes";
-        # We don't use UNIX sockets, so we can disable them
-        RestrictAddressFamilies = [ "AF_INET" "AF_INET6" ];
-        # Only permit writes to `/run` (needed for mount points) and the data and home directories
-        # of CometBFT, so that an exploit of CometBFT cannot write to any other part of the system
-        ReadOnlyPaths = [ "/" ];
-        ReadWritePaths = [ "/run" "-${cfg.dataDir}" "-${cfg.homeDir}" ];
-        # Only allow execution from the Nix store (which is mounted read-only) so that an exploit
-        # cannot execute arbitrary code that it writes to a writable directory
-        NoExecPaths = [ "/" ];
-        ExecPaths = [ "/nix/store" ];
+      } // sandboxSystemd {
+        # CometBFT needs to write to the home and data directories
+        writeDirs = [ cfg.homeDir cfg.dataDir ];
+        # We permit only the necessary network access
+        addressFamilies = [ "AF_INET" "AF_INET6" ];
       };
     };
   };
