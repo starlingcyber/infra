@@ -310,7 +310,7 @@ in {
         RuntimeDirectory = "penumbra/cometbft";
         ExecStart = ''
           ${pkgs.bash}/bin/bash -c \
-            "${pkgs.coreutils}/bin/cp -r ${configDir} /run/penumbra/cometbft && \
+            "${pkgs.coreutils}/bin/cp -r ${configDir}/* /run/penumbra/cometbft && \
              ${pkgs.tree}/bin/tree /run/penumbra/cometbft && \
              ${cometbft}/bin/cometbft start --home /run/penumbra/cometbft"
         '';
