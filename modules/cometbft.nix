@@ -13,17 +13,17 @@ in {
     };
 
     nodeKey = mkOption {
-      type = types.path;
+      type = types.str;
       description = "The file containing the node's private key";
     };
 
     privValidator.key = mkOption {
-      type = types.path;
+      type = types.str;
       description = "The file containing the node's private validator key";
     };
 
     privValidator.state = mkOption {
-      type = types.path;
+      type = types.str;
       description = "The file containing the node's private validator state";
     };
 
