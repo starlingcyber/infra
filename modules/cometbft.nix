@@ -340,7 +340,7 @@ in {
         #   "${pkgs.bash}/bin/bash"
         #   "${pkgs.coreutils}/bin/mkdir"
         #   "${pkgs.coreutils}/bin/cp"
-        ];
+        # ];
         # ReadOnlyPaths = [ initialHomeDir ];
         # ReadWritePaths = [ cfg.dataDir cfg.homeDir ];
       };
