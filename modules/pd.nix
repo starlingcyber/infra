@@ -31,13 +31,13 @@ in {
 
     metrics.port = mkOption {
       type = types.int;
-      optional = true;
+      default = null;
       description = "The port on which the Penumbra daemon will expose Prometheus metrics";
     };
 
     grpc.bind = mkOption {
       type = types.str;
-      optional = true;
+      default = null;
       description = "The address at which the Penumbra daemon will listen for gRPC connections";
     };
 
@@ -84,8 +84,8 @@ in {
               --home ${cfg.dataDir} \
               ${if cfg.grpc.autoHttps.enable then "--grpc-auto-https" else ""} \
               ${if cfg.grpc.autoHttps.production then "" else "--acme-staging"} \
-              ${if cfg.metrics ? port then "--metrics-bind 127.0.0.1:" + toString cfg.metrics.port else ""} \
-              ${if cfg.grpc ? bind then "--grpc-bind " + cfg.grpc.bind else ""} \
+              ${if cfg.metrics.port != null then "--metrics-bind 127.0.0.1:" + toString cfg.metrics.port else ""} \
+              ${if cfg.grpc.bind != null then "--grpc-bind " + cfg.grpc.bind else ""} \
               --abci-bind ${config.services.cometbft.proxyApp.ip}:${toString config.services.cometbft.proxyApp.port} \
               --cometbft-addr ${config.services.cometbft.rpc.ip}:${toString config.services.cometbft.rpc.port} \
         "'';
