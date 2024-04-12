@@ -313,15 +313,13 @@ in {
              ${cometbft}/bin/cometbft init --home ${cfg.homeDir} && \
              ${cometbft}/bin/cometbft start --home ${cfg.homeDir}"
         '';
-        # Restrictive security policy...
-        DynamicUser = "yes";
         # Prevent privilege escalation
         NoNewPrivileges = "yes";
         RestrictSUIDSGID = "yes";
         # Don't allow access to any user home directories
         ProtectHome = "yes";
         # Protect parts of the system from access and modification
-        ProtectSystem = "strict";
+        ProtectSystem = "full";
         ProtectKernelLogs = "yes";
         ProtectKernelModules = "yes";
         ProtectKernelTunables = "yes";
