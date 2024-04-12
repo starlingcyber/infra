@@ -28,6 +28,12 @@ in {
       type = types.path;
       description = "The path to the genesis file that will be used by the CometBFT service";
     };
+
+    RUST_LOG = mkOption {
+      type = types.str;
+      default = "info";
+      description = "The log level for the Penumbra daemon";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -57,6 +63,7 @@ in {
         '';
         # Raise filehandle limit for tower-abci
         LimitNOFILE = 65536;
+        Environment = "RUST_LOG=${cfg.RUST_LOG}";
       } // sandboxSystemd {
         # This permits write access only to the chosen data directory
         writeDirs = [ cfg.dataDir ];
