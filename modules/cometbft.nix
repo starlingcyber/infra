@@ -313,7 +313,7 @@ in {
         # ProtectHome = "yes";
         # ProtectSystem = "strict";
         ReadOnlyPaths = [ "/" ];
-        ReadWritePaths = [ "/run" cfg.dataDir cfg.homeDir ];
+        ReadWritePaths = [ "/run" "-${cfg.dataDir}" "-${cfg.homeDir}" ];
         NoExecPaths = [ "/" ];
         ExecPaths = [
           "${cometbft}/bin/cometbft"
