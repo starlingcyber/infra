@@ -57,6 +57,9 @@ in {
     services.cometbft = {
       enable = true;
       genesisFile = cfg.genesisFile;
+      # Ensure CometBFT only listens on localhost for the app and rpc, because it's only used by `pd`
+      proxyApp.ip = "127.0.0.1";
+      rpc.ip = "127.0.0.1";
     };
 
     # Add the penumbra package to the system
@@ -81,8 +84,8 @@ in {
               ${if cfg.grpc.autoHttps.production then "" else "--acme-staging"} \
               ${if cfg.metrics.port == null then "" else "--metrics-bind 127.0.0.1:" + toString cfg.metrics.port} \
               ${if cfg.grpc.bind == null then "" else "--grpc-bind " + cfg.grpc.bind} \
-              --abci-bind 127.0.0.1:${toString config.services.cometbft.proxyApp.port} \
-              --cometbft-addr 127.0.0.1:${toString config.services.cometbft.rpc.port} \
+              --abci-bind ${config.services.cometbft.proxyApp.ip}:${toString config.services.cometbft.proxyApp.port} \
+              --cometbft-addr ${config.services.cometbft.rpc.ip}:${toString config.services.cometbft.rpc.port} \
         "'';
         # Raise filehandle limit for tower-abci
         LimitNOFILE = 65536;
