@@ -306,7 +306,7 @@ in {
     environment.systemPackages = [ cometbft ];
 
     # Add a new user and group for cometbft specifically
-    groups.cometbft.isSystemGroup = true;
+    users.groups.cometbft.isSystemGroup = true;
     users.users.cometbft = {
       isSystemUser = true;
       home = cfg.homeDir;
