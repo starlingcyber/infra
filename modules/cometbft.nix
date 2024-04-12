@@ -309,6 +309,7 @@ in {
         # Only permit the absolutely necessary executables
         NoExecPaths = [ "/" ];
         ExecPaths = [
+          startScript
           "${cometbft}"
           "${pkgs.coreutils}/bin/mkdir"
           "${pkgs.coreutils}/bin/cp"
