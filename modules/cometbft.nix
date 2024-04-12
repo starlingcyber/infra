@@ -20,7 +20,7 @@ in {
 
     nodeKeyFile = mkOption {
       type = types.str;
-      default = "${cfg.homeDir}/config/node_key.json"
+      default = "${cfg.homeDir}/config/node_key.json";
       description = "The file containing the node's private key";
     };
 
