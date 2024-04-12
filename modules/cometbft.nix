@@ -205,7 +205,7 @@ in {
         cometbft = self.packages.${pkgs.system}.cometbft;
         configToml = (pkgs.formats.toml {}).generate "penumbra-cometbft-config" {
           version = cometbft.version;
-          proxy_app = "tcp://${cfg.proxyApp.ip}:${cfg.proxyApp.port}";
+          proxy_app = "tcp://${cfg.proxyApp.ip}:${toString cfg.proxyApp.port}";
           moniker = cfg.moniker;
           db_backend = "goleveldb";
           db_dir = cfg.dataDir;
@@ -216,7 +216,7 @@ in {
           priv_validator_state_file = cfg.privValidator.state;
           priv_validator_laddr =
             if cfg.privValidator.laddr.enable
-            then "tcp://${cfg.privValidator.laddr.ip}:${cfg.privValidator.laddr.port}"
+            then "tcp://${cfg.privValidator.laddr.ip}:${toString cfg.privValidator.laddr.port}"
             else "";
           node_key_file = cfg.nodeKey;
           abci = "socket";
