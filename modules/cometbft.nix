@@ -305,6 +305,15 @@ in {
     # Add the cometbft executable to the environment
     environment.systemPackages = [ cometbft ];
 
+    # Add a new user and group for cometbft specifically
+    groups.cometbft.isSystemGroup = true;
+    users.users.cometbft = {
+      isSystemUser = true;
+      home = cfg.homeDir;
+      group = "cometbft";
+      description = "CometBFT consensus engine";
+    };
+
     systemd.services.${cfg.serviceName} = {
       wantedBy = ["multi-user.target"];
       serviceConfig =  {
@@ -318,11 +327,17 @@ in {
           ${pkgs.bash}/bin/bash -c \
             "${pkgs.coreutils}/bin/mkdir -p ${cfg.homeDir} && \
              ${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir} && \
-             ${}
+             ${pkgs.coreutils}/bin/chown -R cometbft:cometbft ${cfg.homeDir} && \
+             ${pkgs.coreutils}/bin/chown -R cometbft:cometbft ${cfg.dataDir} && \
+             ${pkgs.coreutils}/bin/chmod 0600 ${cfg.homeDir} && \
+             ${pkgs.coreutils}/bin/chmod 0600 ${cfg.dataDir} && \
              ${pkgs.coreutils}/bin/cp -rf ${initialHomeDir}/config ${cfg.homeDir} && \
              ${cometbft}/bin/cometbft init --home ${cfg.homeDir} && \
              ${cometbft}/bin/cometbft start --home ${cfg.homeDir}"
         '';
+        # Use the cometbft user and group
+        User = "cometbft";
+        Group = "cometbft";
         # Prevent privilege escalation
         NoNewPrivileges = "yes";
         RestrictSUIDSGID = "yes";
