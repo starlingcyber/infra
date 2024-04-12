@@ -300,7 +300,7 @@ in {
           tx_index.psql_conn = cfg.txIndex.psqlConn;
           statesync.enable = false;
         };
-        configDir = pkgs.writeTextDir "/config/config.toml" configToml;
+        configDir = pkgs.writeTextDir "/config/config.toml" (readFile configToml);
       in {
         Restart = "on-failure";
         ExecStart = ''
