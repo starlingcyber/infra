@@ -82,8 +82,8 @@ in {
               --home ${cfg.dataDir} \
               ${if cfg.grpc.autoHttps.enable then "--grpc-auto-https" else ""} \
               ${if cfg.grpc.autoHttps.production then "" else "--acme-staging"} \
-              ${if cfg.metrics.port == null then "" else "--metrics-bind 127.0.0.1:" + toString cfg.metrics.port} \
-              ${if cfg.grpc.bind == null then "" else "--grpc-bind " + cfg.grpc.bind} \
+              ${if cfg.metrics ? port then "--metrics-bind 127.0.0.1:" + toString cfg.metrics.port else ""} \
+              ${if cfg.grpc ? bind then "--grpc-bind " + cfg.grpc.bind else ""} \
               --abci-bind ${config.services.cometbft.proxyApp.ip}:${toString config.services.cometbft.proxyApp.port} \
               --cometbft-addr ${config.services.cometbft.rpc.ip}:${toString config.services.cometbft.rpc.port} \
         "'';
