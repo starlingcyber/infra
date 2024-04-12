@@ -18,24 +18,6 @@ in {
       description = "The home directory for CometBFT";
     };
 
-    nodeKeyFile = mkOption {
-      type = types.str;
-      default = "${cfg.homeDir}/config/node_key.json";
-      description = "The file containing the node's private key";
-    };
-
-    privValidator.keyFile = mkOption {
-      type = types.str;
-      default = "${cfg.homeDir}/config/priv_validator_key.json";
-      description = "The file containing the node's private validator key";
-    };
-
-    privValidator.stateFile = mkOption {
-      type = types.str;
-      default = "${cfg.homeDir}/config/priv_validator_state.json";
-      description = "The file containing the node's private validator state";
-    };
-
     privValidator.laddr.enable = mkEnableOption "Enables an external private validator";
 
     privValidator.laddr.ip = mkOption {
@@ -221,13 +203,10 @@ in {
           db_dir = cfg.dataDir;
           log_level = "info";
           log_format = "plain";
-          priv_validator_key_file = cfg.privValidator.keyFile ? "";
-          priv_validator_state_file = cfg.privValidator.stateFile ? "";
           priv_validator_laddr =
             if cfg.privValidator.laddr.enable
             then "tcp://${cfg.privValidator.laddr.ip}:${toString cfg.privValidator.laddr.port}"
             else "";
-          node_key_file = cfg.nodeKeyFile;
           abci = "socket";
           filter_peers = false;
           rpc = mkIf cfg.rpc.enable {
