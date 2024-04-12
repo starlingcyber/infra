@@ -95,7 +95,7 @@ in {
     };
 
     p2p.addrBook = mkOption {
-      type = types.path;
+      type = types.str;
       default = "";
       description = "The file containing the address book for CometBFT";
     };
