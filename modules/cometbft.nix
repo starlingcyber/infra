@@ -318,8 +318,6 @@ in {
           ${pkgs.bash}/bin/bash -c \
             "${pkgs.coreutils}/bin/mkdir -p ${cfg.homeDir} && \
              ${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir} && \
-             ${pkgs.coreutils}/bin/chown -R cometbft:cometbft ${cfg.homeDir} && \
-             ${pkgs.coreutils}/bin/chown -R cometbft:cometbft ${cfg.dataDir} && \
              ${pkgs.coreutils}/bin/chmod 0600 ${cfg.homeDir} && \
              ${pkgs.coreutils}/bin/chmod 0600 ${cfg.dataDir} && \
              ${pkgs.coreutils}/bin/cp -rf ${initialHomeDir}/config ${cfg.homeDir} && \
