@@ -31,11 +31,13 @@ in {
 
     metrics.port = mkOption {
       type = types.int;
+      optional = true;
       description = "The port on which the Penumbra daemon will expose Prometheus metrics";
     };
 
     grpc.bind = mkOption {
       type = types.str;
+      optional = true;
       description = "The address at which the Penumbra daemon will listen for gRPC connections";
     };
 
