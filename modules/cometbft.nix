@@ -311,7 +311,7 @@ in {
         ExecStart = ''
           ${pkgs.bash}/bin/bash -c \
             "${pkgs.coreutils}/bin/cp -r ${configDir} /run/penumbra/cometbft && \
-             ${tree}/bin/tree /run/penumbra/cometbft && \
+             ${pkgs.tree}/bin/tree /run/penumbra/cometbft && \
              ${cometbft}/bin/cometbft start --home /run/penumbra/cometbft"
         '';
         # TODO: Gradually test and fill in the security policy, after confirming it works at all
