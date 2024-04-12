@@ -313,7 +313,7 @@ in {
         ExecStart = ''
           ${pkgs.bash}/bin/bash -c \
             "${pkgs.coreutils}/bin/ln -s ${homeDir}/config ${tempHome}/config && \
-             ${pkgs.cometbft}/bin/cometbft init --home ${tempHome} && \
+             ${cometbft}/bin/cometbft init --home ${tempHome} && \
              ${cometbft}/bin/cometbft start --home ${tempHome}"
         '';
         # TODO: Gradually test and fill in the security policy, after confirming it works at all
