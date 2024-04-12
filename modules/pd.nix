@@ -31,7 +31,7 @@ in {
 
   config = mkIf cfg.enable {
     # Require that the CometBFT service is enabled, because `pd` won't do anything without it
-    services.penumbra.cometbft = {
+    services.cometbft = {
       enable = true;
       genesisFile = cfg.genesisFile;
     };
