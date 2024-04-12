@@ -113,7 +113,7 @@ in {
 
     homeDir = mkOption {
       type = types.path;
-      default = "/var/lib/penumbra/cometbft";
+      default = "/var/lib/${cfg.serviceName}";
       description = "The home directory for CometBFT";
     };
 
@@ -310,9 +310,9 @@ in {
       serviceConfig =  {
         # Restart = "on-failure";
         Restart = "no";
-        # This creates a directory at `/var/lib/penumbra/cometbft` unconditionally, though it may
+        # This creates a directory at `/var/lib/${cfg.serviceName}` unconditionally, though it may
         # not actually be used if the home directory and/or data directory are both overridden:
-        StateDirectory = "penumbra/cometbft";
+        StateDirectory = cfg.serviceName;
         StateDirectoryMode = "0600";
         ExecStart = ''
           ${pkgs.bash}/bin/bash -c \
