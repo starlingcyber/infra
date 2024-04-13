@@ -116,10 +116,7 @@ in {
       # Don't start until the network is online
       wantedBy = [ "network-online.target" ];
       # Require the CometBFT service and the bootstrap service (and fail if either fails)
-      requires = [
-        "${config.services.cometbft.serviceName}.service"
-        "${cfg.serviceName}.bootstrap.service"
-      ];
+      requires = [ "${config.services.cometbft.serviceName}.service" ];
       # Run the bootstrap script before starting the daemon
       preStart = "${bootstrapScript}";
       # Ensure that the Penumbra daemon is started before the CometBFT service
