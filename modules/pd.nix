@@ -8,7 +8,7 @@ with lib; with self.lib.util; let
   cometbft = self.packages.${pkgs.system}.cometbft;
 
   # Script to start the Penumbra daemon
-  startScript = writeShellScript "start-pd.sh" ''
+  startScript = pkgs.writeShellScript "start-pd.sh" ''
     ${penumbra}/bin/pd start \
       --home ${cfg.dataDir} \
       ${if cfg.grpc.autoHttps.enable then "--grpc-auto-https" else ""} \
