@@ -21,28 +21,21 @@ with lib; with self.lib.util; let
 
   # Script to bootstrap the node state from a snapshot, if this is enabled by the config
   bootstrapScript = pkgs.writeShellScript "bootstrap-pd.sh" ''
-    set -euo pipefail
+    set -euxo
     ${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir}
     ${pkgs.coreutils}/bin/chmod 0600 ${cfg.dataDir}
     if ${if cfg.bootstrap.enable then "true" else "false"} && [[ ! -d ${cfg.dataDir}/rocksdb ]]; then
       for URL in ${concatStringsSep " " cfg.bootstrap.snapshotUrls}; do
-        echo "Downloading snapshot from $URL ..."
         if [[ ${pkgs.curl}/bin/curl -L "$URL" | ${pkgs.gnutar}/bin/tar -C ${cfg.dataDir} -xzO ]]; then
-          echo "Successfully downloaded snapshot"
           for COMET_FILE in "genesis.json" "priv_validator_state.json"; do
             SRC="${cfg.dataDir}/$COMET_FILE"
             if [[ -f "$SRC" ]]; then
               DEST="${config.services.cometbft.homeDir}/config/$COMET_FILE"
-              echo "Snapshot contains $COMET_FILE, moving to $DEST"
               ${pkgs.coreutils}/bin/mv "$SRC" "$DEST"
-            else
-              echo "Snapshot does not contain $COMET_FILE"
             fi
           done
-          echo "Snapshot bootstrap complete"
           exit 0
         else
-          echo "Failed to download snapshot from $URL"
           rm -rf ${cfg.dataDir}/*
         fi
       done
