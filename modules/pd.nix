@@ -29,7 +29,7 @@ with lib; with self.lib.util; let
     chmod 0600 ${cfg.dataDir}
     if ${if cfg.bootstrap.enable then "true" else "false"} && [[ ! -d ${cfg.dataDir}/rocksdb ]]; then
       for URL in ${concatStringsSep " " cfg.bootstrap.snapshotUrls}; do
-        if curl -L "$URL" | tar -C ${cfg.dataDir} -xzO; then
+        if curl -L "$URL" | tar -xzC ${cfg.dataDir}; then
           for COMET_FILE in "genesis.json" "priv_validator_state.json"; do
             SRC="${cfg.dataDir}/$COMET_FILE"
             if [[ -f "$SRC" ]]; then
