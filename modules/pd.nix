@@ -6,6 +6,49 @@ with lib; with self.lib.util; let
   # Shorthand for the packages, used below
   penumbra = self.packages.${pkgs.system}.penumbra;
   cometbft = self.packages.${pkgs.system}.cometbft;
+
+  # Script to start the Penumbra daemon
+  startScript = writeShellScript "start-pd.sh" ''
+    ${penumbra}/bin/pd start \
+      --home ${cfg.dataDir} \
+      ${if cfg.grpc.autoHttps.enable then "--grpc-auto-https" else ""} \
+      ${if cfg.grpc.autoHttps.production then "" else "--acme-staging"} \
+      ${if cfg.metrics.port != null then "--metrics-bind 127.0.0.1:" + toString cfg.metrics.port else ""} \
+      ${if cfg.grpc.bind != null then "--grpc-bind " + cfg.grpc.bind else ""} \
+      --abci-bind ${config.services.cometbft.proxyApp.ip}:${toString config.services.cometbft.proxyApp.port} \
+      --cometbft-addr http://${config.services.cometbft.rpc.ip}:${toString config.services.cometbft.rpc.port}
+  '';
+
+  # Script to bootstrap the node state from a snapshot, if this is enabled by the config
+  bootstrapScript = writeShellScript "bootstrap-pd.sh" ''
+    set -euo pipefail
+    ${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir}
+    ${pkgs.coreutils}/bin/chmod 0600 ${cfg.dataDir}
+    if ${if cfg.snapshot.enable then "true" else "false"} && [[ ! -d ${cfg.dataDir}/rocksdb ]]; then
+      for URL in ${concatStringsSep " " cfg.snapshotUrls}; do
+        echo "Downloading snapshot from $URL ..."
+        if [[ ${pkgs.curl}/bin/curl -L "$URL" | ${pkgs.gnutar}/bin/tar -C ${cfg.dataDir} -xzO ]]; then
+          echo "Successfully downloaded snapshot"
+          for COMET_FILE in "genesis.json" "priv_validator_state.json"; do
+            SRC="${cfg.dataDir}/$COMET_FILE"
+            if [[ -f "$SRC" ]]; then
+              DEST="${config.services.cometbft.homeDir}/config/$COMET_FILE"
+              echo "Snapshot contains $COMET_FILE, moving to $DEST"
+              ${pkgs.coreutils}/bin/mv "$SRC" "$DEST"
+            else
+              echo "Snapshot does not contain $COMET_FILE"
+            fi
+          done
+          echo "Snapshot bootstrap complete"
+          exit 0
+        else
+          echo "Failed to download snapshot from $URL"
+          rm -rf ${cfg.dataDir}/*
+        fi
+      done
+    fi
+    exit 1
+  '';
 in {
   imports = [ self.nixosModules.cometbft ];
 
@@ -47,6 +90,13 @@ in {
     grpc.autoHttps.production =
       mkEnableOption "Whether to use the production (rate-limited) Let's Encrypt ACME endpoint for the gRPC server";
 
+    bootstrap.enable = mkEnableOption "Whether to bootstrap the node state from a snapshot";
+
+    bootstrap.snapshotUrls = mkOption {
+      type = mkIf cfg.bootstrap.enable (types.nonEmptyListOf types.str);
+      description = "The URLs from which to try downloading snapshot files";
+    };
+
     RUST_LOG = mkOption {
       type = types.str;
       default = "info";
@@ -68,27 +118,25 @@ in {
     environment.systemPackages = [ penumbra ];
 
     systemd.services.${cfg.serviceName} = {
-      wantedBy = ["multi-user.target"];
-      wants = [ "network-online.target" "${config.services.cometbft.serviceName}.service" ];
+      # Don't start until the network is online
+      wantedBy = [ "network-online.target" ];
+      # Require the CometBFT service and the bootstrap service (and fail if either fails)
+      requires = [
+        "${config.services.cometbft.serviceName}.service"
+        "${cfg.serviceName}.bootstrap.service"
+      ];
+      # Run the bootstrap script before starting the daemon
+      preStart = bootstrapScript;
+      # Ensure that the Penumbra daemon is started before the CometBFT service
+      before = [ "${config.services.cometbft.serviceName}.service" ];
+      # Configuration of the service itself:
       serviceConfig = {
         Restart = "no";
         # This creates a directory at `/var/lib/${cfg.serviceName}` unconditionally, though it may
         # not actually be used if the data directory is overridden:
         StateDirectory = cfg.serviceName;
         StateDirectoryMode = "0600";
-        ExecStart = ''
-          ${pkgs.bash}/bin/bash -c "\
-            ${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir} && \
-            ${pkgs.coreutils}/bin/chmod 0600 ${cfg.dataDir} && \
-            ${penumbra}/bin/pd start \
-              --home ${cfg.dataDir} \
-              ${if cfg.grpc.autoHttps.enable then "--grpc-auto-https" else ""} \
-              ${if cfg.grpc.autoHttps.production then "" else "--acme-staging"} \
-              ${if cfg.metrics.port != null then "--metrics-bind 127.0.0.1:" + toString cfg.metrics.port else ""} \
-              ${if cfg.grpc.bind != null then "--grpc-bind " + cfg.grpc.bind else ""} \
-              --abci-bind ${config.services.cometbft.proxyApp.ip}:${toString config.services.cometbft.proxyApp.port} \
-              --cometbft-addr http://${config.services.cometbft.rpc.ip}:${toString config.services.cometbft.rpc.port} \
-        "'';
+        ExecStart = startScript;
         # Raise filehandle limit for tower-abci
         LimitNOFILE = 65536;
         Environment = "RUST_LOG=${cfg.RUST_LOG}";
