@@ -20,7 +20,7 @@ with lib; with self.lib.util; let
   '';
 
   # Script to bootstrap the node state from a snapshot, if this is enabled by the config
-  bootstrapScript = writeShellScript "bootstrap-pd.sh" ''
+  bootstrapScript = pkgs.writeShellScript "bootstrap-pd.sh" ''
     set -euo pipefail
     ${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir}
     ${pkgs.coreutils}/bin/chmod 0600 ${cfg.dataDir}

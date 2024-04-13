@@ -108,7 +108,7 @@ with lib; with self.lib.util; let
   # could be overwritten by the pd bootstrap-from-a-snapshot process, while the config file is
   # expected to be updated by the user through Nix configuration, so it should always mirror exactly
   # what's in the Nix store.
-  startScript = writeShellScript "start-cometbft.sh" ''
+  startScript = pkgs.writeShellScript "start-cometbft.sh" ''
     ${pkgs.coreutils}/bin/mkdir -p ${cfg.homeDir} && \
     ${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir} && \
     ${pkgs.coreutils}/bin/chmod 0600 ${cfg.homeDir} && \
