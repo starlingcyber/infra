@@ -126,7 +126,7 @@ in {
         "${cfg.serviceName}.bootstrap.service"
       ];
       # Run the bootstrap script before starting the daemon
-      preStart = bootstrapScript;
+      preStart = "${bootstrapScript}";
       # Ensure that the Penumbra daemon is started before the CometBFT service
       before = [ "${config.services.cometbft.serviceName}.service" ];
       # Configuration of the service itself:
