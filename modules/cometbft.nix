@@ -101,13 +101,24 @@ with lib; with self.lib.util; let
     statesync.enable = false;
   };
 
-  # Set up initial configuration directory structure, to be copied when service is run
-  configInDir = pkgs.writeTextDir "/config/config.toml" (readFile configToml);
-  genesisInDir = pkgs.writeTextDir "/config/genesis.json" (readFile cfg.genesisFile);
-  initialHomeDir = pkgs.symlinkJoin {
-    name = "penumbra-cometbft-home";
-    paths = [ configInDir genesisInDir ];
-  };
+  # Start script for the service
+
+  # Note: this *very intentionally* uses `yes n` to answer "no" to the prompt to overwrite the
+  # genesis file, but uses cp -f to overwrite the config file. This is because the genesis file
+  # could be overwritten by the pd bootstrap-from-a-snapshot process, while the config file is
+  # expected to be updated by the user through Nix configuration, so it should always mirror exactly
+  # what's in the Nix store.
+  startScript = writeShellScript "start-cometbft.sh" ''
+    ${pkgs.coreutils}/bin/mkdir -p ${cfg.homeDir} && \
+    ${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir} && \
+    ${pkgs.coreutils}/bin/chmod 0600 ${cfg.homeDir} && \
+    ${pkgs.coreutils}/bin/chmod 0600 ${cfg.dataDir} && \
+    ${pkgs.coreutils}/bin/mkdir -p ${cfg.homeDir}/config && \
+    ${pkgs.coreutils}/bin/cp -f ${configToml} ${cfg.homeDir}/config/config.toml && \
+    ${pkgs.coreutils}/bin/yes n | ${pkgs.coreutils}/bin/cp -i ${cfg.genesisFile} 2>/dev/null && \
+    ${cometbft}/bin/cometbft init --home ${cfg.homeDir} && \
+    ${cometbft}/bin/cometbft start --home ${cfg.homeDir}
+  '';
 in {
   options.services.cometbft = {
     enable = mkEnableOption "Enables just CometBFT without automatically starting the Penumbra daemon";
@@ -315,24 +326,16 @@ in {
     environment.systemPackages = [ cometbft ];
 
     systemd.services.${cfg.serviceName} = {
-      wantedBy = ["multi-user.target"];
-      wants = [ "network-online.target" ];
+      # If enabled, the service will start automatically when the network comes up
+      wantedBy = [ "network-online.target" ];
+      # The configuration of the service itself:
       serviceConfig =  {
         Restart = "no";
         # This creates a directory at `/var/lib/${cfg.serviceName}` unconditionally, though it may
         # not actually be used if the home directory and/or data directory are both overridden:
         StateDirectory = cfg.serviceName;
         StateDirectoryMode = "0600";
-        ExecStart = ''
-          ${pkgs.bash}/bin/bash -c \
-            "${pkgs.coreutils}/bin/mkdir -p ${cfg.homeDir} && \
-             ${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir} && \
-             ${pkgs.coreutils}/bin/chmod 0600 ${cfg.homeDir} && \
-             ${pkgs.coreutils}/bin/chmod 0600 ${cfg.dataDir} && \
-             ${pkgs.coreutils}/bin/cp -rf ${initialHomeDir}/config ${cfg.homeDir} && \
-             ${cometbft}/bin/cometbft init --home ${cfg.homeDir} && \
-             ${cometbft}/bin/cometbft start --home ${cfg.homeDir}"
-        '';
+        ExecStart = startScript;
       } // sandboxSystemd {
         # CometBFT needs to write to the home and data directories
         writeDirs = [ cfg.homeDir cfg.dataDir ];
