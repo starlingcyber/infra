@@ -9,6 +9,7 @@ with lib; with self.lib.util; let
 
   # Script to start the Penumbra daemon
   startScript = pkgs.writeShellScript "start-pd.sh" ''
+    set -euxo
     ${penumbra}/bin/pd start \
       --home ${cfg.dataDir} \
       ${if cfg.grpc.autoHttps.enable then "--grpc-auto-https" else ""} \
