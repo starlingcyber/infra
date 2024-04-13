@@ -93,7 +93,8 @@ in {
     bootstrap.enable = mkEnableOption "Whether to bootstrap the node state from a snapshot";
 
     bootstrap.snapshotUrls = mkOption {
-      type = mkIf cfg.bootstrap.enable (types.listOf types.str);
+      type = types.listOf types.str;
+      default = [];
       description = "The URLs from which to try downloading snapshot files";
     };
 
