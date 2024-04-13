@@ -110,17 +110,19 @@ with lib; with self.lib.util; let
   # what's in the Nix store.
   startScript = pkgs.writeShellScript "start-cometbft.sh" ''
     set -euxo
-    ${pkgs.coreutils}/bin/mkdir -p "${cfg.homeDir}"
-    ${pkgs.coreutils}/bin/mkdir -p "${cfg.dataDir}"
-    ${pkgs.coreutils}/bin/chmod 0600 "${cfg.homeDir}"
-    ${pkgs.coreutils}/bin/chmod 0600 "${cfg.dataDir}"
-    ${pkgs.coreutils}/bin/mkdir -p "${cfg.homeDir}/config"
-    ${pkgs.coreutils}/bin/cp -f "${configToml}" "${cfg.homeDir}/config/config.toml"
+    PATH="${pkgs.coreutils}/bin:${cometbft}/bin:$PATH"
+
+    mkdir -p "${cfg.homeDir}"
+    mkdir -p "${cfg.dataDir}"
+    chmod 0600 "${cfg.homeDir}"
+    chmod 0600 "${cfg.dataDir}"
+    mkdir -p "${cfg.homeDir}/config"
+    cp -f "${configToml}" "${cfg.homeDir}/config/config.toml"
     if [[ ! -f "${cfg.homeDir}/config/genesis.json" ]]; then
       ${pkgs.coreutils}/bin/cp "${cfg.genesisFile}" "${cfg.homeDir}/config/genesis.json"
     fi
-    ${cometbft}/bin/cometbft init --home "${cfg.homeDir}"
-    ${cometbft}/bin/cometbft start --home "${cfg.homeDir}"
+    cometbft init --home "${cfg.homeDir}"
+    cometbft start --home "${cfg.homeDir}"
   '';
 in {
   options.services.cometbft = {

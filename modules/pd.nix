@@ -23,16 +23,18 @@ with lib; with self.lib.util; let
   # Script to bootstrap the node state from a snapshot, if this is enabled by the config
   bootstrapScript = pkgs.writeShellScript "bootstrap-pd.sh" ''
     set -euxo
-    ${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir}
-    ${pkgs.coreutils}/bin/chmod 0600 ${cfg.dataDir}
+    PATH="${pkgs.gzip}/bin:${pkgs.gnutar}/bin:${pkgs.curl}/bin:${pkgs.coreutils}/bin:$PATH"
+
+    mkdir -p ${cfg.dataDir}
+    chmod 0600 ${cfg.dataDir}
     if ${if cfg.bootstrap.enable then "true" else "false"} && [[ ! -d ${cfg.dataDir}/rocksdb ]]; then
       for URL in ${concatStringsSep " " cfg.bootstrap.snapshotUrls}; do
-        if ${pkgs.curl}/bin/curl -L "$URL" | ${pkgs.gnutar}/bin/tar -C ${cfg.dataDir} -xzO; then
+        if curl -L "$URL" | tar -C ${cfg.dataDir} -xzO; then
           for COMET_FILE in "genesis.json" "priv_validator_state.json"; do
             SRC="${cfg.dataDir}/$COMET_FILE"
             if [[ -f "$SRC" ]]; then
               DEST="${config.services.cometbft.homeDir}/config/$COMET_FILE"
-              ${pkgs.coreutils}/bin/mv "$SRC" "$DEST"
+              mv "$SRC" "$DEST"
             fi
           done
           exit 0
