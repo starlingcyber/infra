@@ -24,8 +24,8 @@ with lib; with self.lib.util; let
     set -euo pipefail
     ${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir}
     ${pkgs.coreutils}/bin/chmod 0600 ${cfg.dataDir}
-    if ${if cfg.snapshot.enable then "true" else "false"} && [[ ! -d ${cfg.dataDir}/rocksdb ]]; then
-      for URL in ${concatStringsSep " " cfg.snapshotUrls}; do
+    if ${if cfg.bootstrap.enable then "true" else "false"} && [[ ! -d ${cfg.dataDir}/rocksdb ]]; then
+      for URL in ${concatStringsSep " " cfg.bootstrap.snapshotUrls}; do
         echo "Downloading snapshot from $URL ..."
         if [[ ${pkgs.curl}/bin/curl -L "$URL" | ${pkgs.gnutar}/bin/tar -C ${cfg.dataDir} -xzO ]]; then
           echo "Successfully downloaded snapshot"
