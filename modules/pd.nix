@@ -116,7 +116,7 @@ in {
 
     systemd.services.${cfg.serviceName} = {
       # Don't start until the network is online
-      wantedBy = [ "network-online.target" ];
+      wantedBy = [ "multi-user.target" ];
       # Require the CometBFT service and the bootstrap service (and fail if either fails)
       requires = [ "${config.services.cometbft.serviceName}.service" ];
       # Run the bootstrap script before starting the daemon

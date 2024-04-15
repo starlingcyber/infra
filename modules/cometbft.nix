@@ -332,7 +332,7 @@ in {
 
     systemd.services.${cfg.serviceName} = {
       # If enabled, the service will start automatically when the network comes up
-      wantedBy = [ "network-online.target" ];
+      wantedBy = [ "multi-user.target" ];
       # The configuration of the service itself:
       serviceConfig =  {
         Restart = "no";
