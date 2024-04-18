@@ -34,6 +34,7 @@ with lib; with self.lib.util; let
             SRC="${cfg.dataDir}/$COMET_FILE"
             if [[ -f "$SRC" ]]; then
               DEST="${config.services.cometbft.homeDir}/config/$COMET_FILE"
+              mkdir -p ${config.services.cometbft.homeDir}/config
               mv "$SRC" "$DEST"
             fi
           done
