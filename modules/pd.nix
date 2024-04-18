@@ -126,7 +126,7 @@ in {
       before = [ "${config.services.cometbft.serviceName}.service" ];
       # Configuration of the service itself:
       serviceConfig = {
-        Restart = "no";
+        Restart = "always";
         # This creates a directory at `/var/lib/${cfg.serviceName}` unconditionally, though it may
         # not actually be used if the data directory is overridden:
         StateDirectory = cfg.serviceName;

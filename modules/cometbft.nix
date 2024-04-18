@@ -335,7 +335,7 @@ in {
       wantedBy = [ "multi-user.target" ];
       # The configuration of the service itself:
       serviceConfig =  {
-        Restart = "no";
+        Restart = "always";
         # This creates a directory at `/var/lib/${cfg.serviceName}` unconditionally, though it may
         # not actually be used if the home directory and/or data directory are both overridden:
         StateDirectory = cfg.serviceName;
