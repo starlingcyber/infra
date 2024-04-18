@@ -43,8 +43,8 @@ with lib; with self.lib.util; let
           rm -rf ${cfg.dataDir}/*
         fi
       done
+      exit 1
     fi
-    exit 1
   '';
 in {
   imports = [ self.nixosModules.cometbft ];
