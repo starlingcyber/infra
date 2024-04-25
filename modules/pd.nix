@@ -102,7 +102,10 @@ in {
     };
   };
 
-  config = mkIf cfg.enable {
+  config = {
+    # Add the penumbra package and cometbft to the system even if the service isn't enabled
+    environment.systemPackages = [ penumbra cometbft ];
+  } // mkIf cfg.enable {
     # Require that the CometBFT service is enabled, because `pd` won't do anything without it
     services.cometbft = {
       enable = true;
@@ -111,9 +114,6 @@ in {
       proxyApp.ip = "127.0.0.1";
       rpc.ip = "127.0.0.1";
     };
-
-    # Add the penumbra package to the system
-    environment.systemPackages = [ penumbra ];
 
     systemd.services.${cfg.serviceName} = {
       # Don't start until the network is online
