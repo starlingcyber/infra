@@ -1,7 +1,8 @@
-self: { config, pkgs, lib, ...  }:
+self: { config, options, pkgs, lib, ...  }:
 
 with lib; with self.lib.util; let
   cfg = config.services.penumbra.pd;
+  opts = options.services.penumbra.pd;
 
   # Shorthand for the packages, used below
   penumbra = self.packages.${pkgs.system}.penumbra;
@@ -12,12 +13,15 @@ with lib; with self.lib.util; let
     set -euxo
     ${penumbra}/bin/pd start \
       --home ${cfg.dataDir} \
-      ${if cfg.grpc.autoHttps.enable then "--grpc-auto-https" else ""} \
-      ${if cfg.grpc.autoHttps.production then "" else "--acme-staging"} \
-      ${if cfg.metrics.port != null then "--metrics-bind 127.0.0.1:" + toString cfg.metrics.port else ""} \
-      ${if cfg.grpc.bind != null then "--grpc-bind " + cfg.grpc.bind else ""} \
+      ${if cfg.rpc.autoHttps.enable then "--grpc-auto-https" else ""} \
+      ${if cfg.rpc.autoHttps.production then "" else "--acme-staging"} \
+      ${if cfg.metrics.port != null || cfg.metrics.ip != opts.metrics.ip.default
+        then "--metrics-bind ${cfg.metrics.ip}:" + toString cfg.metrics.port
+        else ""} \
+      ${if cfg.rpc.bind != null then "--grpc-bind " + cfg.rpc.bind else ""} \
       --abci-bind ${config.services.cometbft.proxyApp.ip}:${toString config.services.cometbft.proxyApp.port} \
-      --cometbft-addr http://${config.services.cometbft.rpc.ip}:${toString config.services.cometbft.rpc.port}
+      --cometbft-addr http://${config.services.cometbft.rpc.ip}:${toString config.services.cometbft.rpc.port} \
+      ${if cfg.rpc.expensive.enable then "--enable-expensive-rpc" else ""}
   '';
 
   # Script to bootstrap the node state from a snapshot, if this is enabled by the config
@@ -99,23 +103,31 @@ in {
       description = "The hash of the genesis file at the given URL";
     };
 
+    metrics.ip = mkOption {
+      type = types.str;
+      default = "127.0.0.1";
+      description = "The IP address on which the Penumbra daemon will expose Prometheus metrics";
+    };
+
     metrics.port = mkOption {
       type = types.int;
       default = 9000;
       description = "The port on which the Penumbra daemon will expose Prometheus metrics";
     };
 
-    grpc.bind = mkOption {
+    rpc.bind = mkOption {
       type = types.str;
-      default = if cfg.grpc.autoHttps.enable then "0.0.0.0:443" else "127.0.0.1:8080";
-      description = "The address at which the Penumbra daemon will listen for gRPC connections";
+      default = if cfg.rpc.autoHttps.enable then "0.0.0.0:443" else "127.0.0.1:8080";
+      description = "The address at which the Penumbra daemon will listen for RPC connections and serve the web frontend";
     };
 
-    grpc.autoHttps.enable =
+    rpc.expensive.enable = mkEnableOption "Whether to enable the expensive RPC endpoints (possible DoS vector)";
+
+    rpc.autoHttps.enable =
       mkEnableOption "Whether to automatically enable HTTPS for the server using Let's Encrypt";
 
-    grpc.autoHttps.production =
-      mkEnableOption "Whether to use the production (rate-limited) Let's Encrypt ACME endpoint for the gRPC server";
+    rpc.autoHttps.production =
+      mkEnableOption "Whether to use the production (rate-limited) Let's Encrypt ACME endpoint for the RPC server and web frontend";
 
     bootstrap.enable = mkEnableOption "Whether to bootstrap the node state from a snapshot";
 
