@@ -68,16 +68,17 @@ in {
       type = types.path;
         description = "The path to the genesis file that will be used by the CometBFT service";
       default =
-        if cfg.genesis.rpc.url != null && cfg.genesis.rpc.hash != null
-        then let
+        if cfg.genesis.rpc.enable then let
           jsonRpcResponse = builtins.fromJSON (pkgs.fetchurl {
             url = cfg.genesis.rpc.url;
             sha256 = cfg.genesis.rpc.hash;
           });
           genesisJSON = builtins.toJSON jsonRpcResponse.result.genesis;
-        in pkgs.writeText "genesis.json" genesisJSON
-        else throw "Either genesis.rpc.url and genesis.rpc.hash must be set, or genesis.file must be set";
+        in "${pkgs.writeText "genesis.json" genesisJSON}"
+        else throw "Either genesis.rpc must be enabled and configured, or genesis.file must be set";
     };
+
+    genesis.rpc.enable = mkEnableOption "Whether to download the genesis file from a JSON-RPC endpoint";
 
     genesis.rpc.url = mkOption {
       type = types.str;
