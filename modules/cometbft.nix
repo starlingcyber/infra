@@ -22,7 +22,7 @@ with lib; with self.lib.util; let
       else "";
     abci = "socket";
     filter_peers = false;
-    rpc = mkIf cfg.rpc.enable {
+    rpc = if cfg.rpc.enable then {
       laddr = "tcp://${cfg.rpc.ip}:${toString cfg.rpc.port}";
       cors_allowed_origins = [];
       cors_allowed_methods = ["HEAD" "GET" "POST"];
@@ -39,7 +39,7 @@ with lib; with self.lib.util; let
       tls_cert_file = "";
       tls_key_file = "";
       pprof_laddr = "";
-    };
+    } else {};
     p2p = {
       laddr = "tcp://${cfg.p2p.ip}:${toString cfg.p2p.port}";
       external_address = cfg.p2p.externalAddress;
