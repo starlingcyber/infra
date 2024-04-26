@@ -75,7 +75,7 @@ in {
             sha256 = cfg.genesis.rpc.hash;
           });
           genesisJSON = builtins.toJSON jsonRpcResponse.result.genesis;
-        in writeText "genesis.json" genesisJSON
+        in pkgs.writeText "genesis.json" genesisJSON
         else throw "Either genesis.rpc.url and genesis.rpc.hash must be set, or genesis.file must be set";
     };
 
