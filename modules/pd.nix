@@ -70,7 +70,7 @@ in {
       default =
         if cfg.genesis.rpc.url != null && cfg.genesis.rpc.hash != null
         then let
-          jsonRpcResponse = builtins.fromJSON (fetchurl {
+          jsonRpcResponse = builtins.fromJSON (pkgs.fetchurl {
             url = cfg.genesis.rpc.url;
             sha256 = cfg.genesis.rpc.hash;
           });
