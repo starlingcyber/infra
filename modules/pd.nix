@@ -52,6 +52,8 @@ in {
   options.services.penumbra.pd = {
     enable = mkEnableOption "Enables the Penumbra fullnode daemon and its CometBFT sidecar";
 
+    pause = mkEnableOption "Whether to keep the Penumbra daemon paused";
+
     dataDir = mkOption {
       type = types.path;
       default = "/var/lib/${cfg.serviceName}";
@@ -130,10 +132,10 @@ in {
     };
   };
 
-  config = {
-    # Add the penumbra package and cometbft to the system even if the service isn't enabled
-    environment.systemPackages = [ penumbra cometbft ];
-  } // mkIf cfg.enable {
+  config = mkIf cfg.enable {
+    # Add the penumbra package and cometbft to the system
+    environment.systemPackages = [ penumbra ];
+
     # Require that the CometBFT service is enabled, because `pd` won't do anything without it
     services.cometbft = {
       enable = true;
@@ -143,7 +145,7 @@ in {
       rpc.ip = "127.0.0.1";
     };
 
-    systemd.services.${cfg.serviceName} = {
+    systemd.services.${cfg.serviceName} = mkIf !cfg.pause {
       # Don't start until the network is online
       wantedBy = [ "multi-user.target" ];
       # Require the CometBFT service and the bootstrap service (and fail if either fails)
