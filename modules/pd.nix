@@ -68,7 +68,7 @@ in {
       type = types.path;
         description = "The path to the genesis file that will be used by the CometBFT service";
       default =
-        if genesis.rpc.url != null && genesis.rpc.hash != null
+        if cfg.genesis.rpc.url != null && cfg.genesis.rpc.hash != null
         then let
           jsonRpcResponse = builtins.fromJSON (fetchurl {
             url = cfg.genesis.rpc.url;
