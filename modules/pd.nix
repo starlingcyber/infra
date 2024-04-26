@@ -76,7 +76,7 @@ in {
           genesisJson = builtins.toJSON jsonRpcResponse.result.genesis;
           genesis = pkgs.writeTextFile {
             name = "genesis.json";
-            text = genesisJSON;
+            text = genesisJson;
             executable = false;
             destination = "/genesis.json";
           };
