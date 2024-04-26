@@ -152,9 +152,8 @@ in {
     services.cometbft = {
       enable = true;
       genesis.file = cfg.genesis.file;
-      # Ensure CometBFT only listens on localhost for the app and rpc, because it's only used by `pd`
+      # Ensure CometBFT only listens on localhost for the app, because it's only used by `pd`
       proxyApp.ip = "127.0.0.1";
-      rpc.ip = "127.0.0.1";
     };
 
     systemd.services.${cfg.serviceName} = mkIf (! cfg.pause) {
