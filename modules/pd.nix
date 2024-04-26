@@ -145,7 +145,7 @@ in {
       rpc.ip = "127.0.0.1";
     };
 
-    systemd.services.${cfg.serviceName} = mkIf !cfg.pause {
+    systemd.services.${cfg.serviceName} = mkIf (! cfg.pause) {
       # Don't start until the network is online
       wantedBy = [ "multi-user.target" ];
       # Require the CometBFT service and the bootstrap service (and fail if either fails)
