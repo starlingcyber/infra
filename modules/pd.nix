@@ -69,11 +69,12 @@ in {
         description = "The path to the genesis file that will be used by the CometBFT service";
       default =
         if cfg.genesis.rpc.enable then let
-          jsonRpcResponse = builtins.fromJSON (pkgs.fetchurl {
+          jsonRpcResponse = builtins.readFile (pkgs.fetchurl {
             url = cfg.genesis.rpc.url;
             sha256 = cfg.genesis.rpc.hash;
           });
-          genesisJson = builtins.toJSON jsonRpcResponse.result.genesis;
+          genesisJson =
+            builtins.toJSON (builtins.fromJSON jsonRpcResponse).result.genesis;
           genesis = pkgs.writeTextFile {
             name = "genesis.json";
             text = genesisJson;
