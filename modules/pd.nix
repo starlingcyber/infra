@@ -64,9 +64,29 @@ in {
       description = "The name of the Penumbra daemon service";
     };
 
-    genesisFile = mkOption {
+    genesis.file = mkOption {
       type = types.path;
-      description = "The path to the genesis file that will be used by the CometBFT service";
+        description = "The path to the genesis file that will be used by the CometBFT service";
+      default =
+        if genesis.rpc.url != null && genesis.rpc.hash != null
+        then let
+          jsonRpcResponse = builtins.fromJSON (fetchurl {
+            url = cfg.genesis.rpc.url;
+            sha256 = cfg.genesis.rpc.hash;
+          });
+          genesisJSON = builtins.toJSON jsonRpcResponse.result.genesis;
+        in writeText "genesis.json" genesisJSON
+        else throw "Either genesis.rpc.url and genesis.rpc.hash must be set, or genesis.file must be set";
+    };
+
+    genesis.rpc.url = mkOption {
+      type = types.str;
+      description = "The URL from which to download the genesis file";
+    };
+
+    genesis.rpc.hash = mkOption {
+      type = types.str;
+      description = "The hash of the genesis file at the given URL";
     };
 
     metrics.port = mkOption {
