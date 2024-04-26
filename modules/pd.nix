@@ -129,7 +129,7 @@ in {
     # Require that the CometBFT service is enabled, because `pd` won't do anything without it
     services.cometbft = {
       enable = true;
-      genesisFile = cfg.genesisFile;
+      genesis.file = cfg.genesis.file;
       # Ensure CometBFT only listens on localhost for the app and rpc, because it's only used by `pd`
       proxyApp.ip = "127.0.0.1";
       rpc.ip = "127.0.0.1";

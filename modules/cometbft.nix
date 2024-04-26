@@ -119,7 +119,7 @@ with lib; with self.lib.util; let
     mkdir -p "${cfg.homeDir}/config"
     cp -f "${configToml}" "${cfg.homeDir}/config/config.toml"
     if [[ ! -f "${cfg.homeDir}/config/genesis.json" ]]; then
-      ${pkgs.coreutils}/bin/cp "${cfg.genesisFile}" "${cfg.homeDir}/config/genesis.json"
+      ${pkgs.coreutils}/bin/cp "${cfg.genesis.file}" "${cfg.homeDir}/config/genesis.json"
     fi
     cometbft init --home "${cfg.homeDir}"
     cometbft start --home "${cfg.homeDir}"
@@ -154,7 +154,7 @@ in {
       description = "The port CometBFT will listen on for an external private validator";
     };
 
-    genesisFile = mkOption {
+    genesis.file = mkOption {
       type = types.path;
       description = "The file containing the genesis information for the chain";
     };
