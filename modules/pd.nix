@@ -73,8 +73,14 @@ in {
             url = cfg.genesis.rpc.url;
             sha256 = cfg.genesis.rpc.hash;
           });
-          genesisJSON = builtins.toJSON jsonRpcResponse.result.genesis;
-        in "${pkgs.writeText "genesis.json" genesisJSON}"
+          genesisJson = builtins.toJSON jsonRpcResponse.result.genesis;
+          genesisJsonFile = pkgs.writeTextFile {
+            name = "genesis.json";
+            text = genesisJSON;
+            executable = false;
+            destination = "/genesis.json";
+          };
+        in "${genesisJsonFile}"
         else throw "Either genesis.rpc must be enabled and configured, or genesis.file must be set";
     };
 
