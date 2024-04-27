@@ -3,9 +3,9 @@
 name = "cometbft";
 owner = "cometbft";
 repo = "cometbft";
-version = "0.37.5";
-hash = "sha256-wNVHsifieAtZgedavCEJLgG0kRDqUhG4Lk5ciTPoNzI=";
-vendorHash = "sha256-JPEGMa0HDesEtKFvgLUP2UfTB0DlParepE2p+n06Igc=";
+version = "0.37.6";
+hash = "sha256-OrihG/xBkgoQtNwyrXoznG571mXFtSdN21QKU8jQEUc=";
+vendorHash = "sha256-2h8tXiy3YuKaJfMHTpbDpVKUO6xro+/DBg4PCE2KhsA=";
 
 in with pkgs; with pkgs.lib;
 
