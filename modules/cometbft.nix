@@ -16,6 +16,9 @@ with lib; with self.lib.util; let
     db_dir = cfg.dataDir;
     log_level = "info";
     log_format = "plain";
+    priv_validator_key_file = cfg.privValidator.keyFile;
+    priv_validator_state_file = cfg.privValidator.stateFile;
+    node_key_file = cfg.nodeKeyFile;
     priv_validator_laddr =
       if cfg.privValidator.laddr.enable
       then "tcp://${cfg.privValidator.laddr.ip}:${toString cfg.privValidator.laddr.port}"
@@ -152,6 +155,24 @@ in {
       type = types.port;
       default = 1234;
       description = "The port CometBFT will listen on for an external private validator";
+    };
+
+    privValidator.keyFile = mkOption {
+      type = types.path;
+      description = "The file containing the private validator key";
+      default = "${cfg.homeDir}/config/priv_validator_key.json";
+    };
+
+    privValidator.stateFile = mkOption {
+      type = types.path;
+      description = "The file containing the private validator state";
+      default = "${cfg.homeDir}/data/priv_validator_state.json";
+    };
+
+    nodeKeyFile = mkOption {
+      type = types.path;
+      description = "The file containing the node key";
+      default = "${cfg.homeDir}/config/node_key.json";
     };
 
     genesis.file = mkOption {
