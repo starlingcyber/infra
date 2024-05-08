@@ -10,12 +10,6 @@
     };
   };
 
-  nixConfig = {
-    extra-substituters = ["https://cache.garnix.io"];
-    extra-trusted-substituters = ["https://cache.garnix.io"];
-    extra-trusted-public-keys = ["cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="];
-  };
-
   outputs = inputs @ { self, nixpkgs, flake-parts, crane, ... }:
     let util = import ./util.nix { inherit nixpkgs; }; in with util;
     flake-parts.lib.mkFlake { inherit inputs; } {
