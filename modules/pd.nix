@@ -9,7 +9,7 @@ with lib; with self.lib.util; let
   cometbft = self.packages.${pkgs.system}.cometbft;
 
   # Script to start the Penumbra daemon
-  startScript = pkgs.writeShellScript "start-pd.sh" ''
+  startScript = pkgs.writeShellScript "pd" ''
     set -euxo
     ${penumbra}/bin/pd start \
       --home ${cfg.dataDir} \
@@ -25,7 +25,7 @@ with lib; with self.lib.util; let
   '';
 
   # Script to bootstrap the node state from a snapshot, if this is enabled by the config
-  bootstrapScript = pkgs.writeShellScript "bootstrap-pd.sh" ''
+  bootstrapScript = pkgs.writeShellScript "bootstrap-pd" ''
     set -euxo
     PATH="${pkgs.gzip}/bin:${pkgs.gnutar}/bin:${pkgs.curl}/bin:${pkgs.coreutils}/bin:$PATH"
 

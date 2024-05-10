@@ -111,7 +111,7 @@ with lib; with self.lib.util; let
   # could be overwritten by the pd bootstrap-from-a-snapshot process, while the config file is
   # expected to be updated by the user through Nix configuration, so it should always mirror exactly
   # what's in the Nix store.
-  startScript = pkgs.writeShellScript "start-cometbft.sh" ''
+  startScript = pkgs.writeShellScript "cometbft" ''
     set -euxo
     PATH="${pkgs.coreutils}/bin:${cometbft}/bin:$PATH"
 
@@ -122,6 +122,8 @@ with lib; with self.lib.util; let
     mkdir -p "${cfg.homeDir}/config"
     cp -f "${configToml}" "${cfg.homeDir}/config/config.toml"
     ${pkgs.coreutils}/bin/cp -f "${cfg.genesis.file}" "${cfg.homeDir}/config/genesis.json"
+    rm -f "${cfg.homeDir}/config/node_key.json"
+    rm -f "${cfg.homeDir}/config/priv_validator_key.json"
     cometbft init --home "${cfg.homeDir}"
     cometbft start --home "${cfg.homeDir}"
   '';
