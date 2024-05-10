@@ -121,9 +121,7 @@ with lib; with self.lib.util; let
     chmod 0600 "${cfg.dataDir}"
     mkdir -p "${cfg.homeDir}/config"
     cp -f "${configToml}" "${cfg.homeDir}/config/config.toml"
-    if [[ ! -f "${cfg.homeDir}/config/genesis.json" ]]; then
-      ${pkgs.coreutils}/bin/cp "${cfg.genesis.file}" "${cfg.homeDir}/config/genesis.json"
-    fi
+    ${pkgs.coreutils}/bin/cp -f "${cfg.genesis.file}" "${cfg.homeDir}/config/genesis.json"
     cometbft init --home "${cfg.homeDir}"
     cometbft start --home "${cfg.homeDir}"
   '';
