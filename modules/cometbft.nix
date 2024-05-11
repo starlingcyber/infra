@@ -122,7 +122,6 @@ with lib; with self.lib.util; let
     mkdir -p "${cfg.homeDir}/config"
     cp -f "${configToml}" "${cfg.homeDir}/config/config.toml"
     ${pkgs.coreutils}/bin/cp -f "${cfg.genesis.file}" "${cfg.homeDir}/config/genesis.json"
-    rm -f "${cfg.homeDir}/config/node_key.json"
     rm -f "${cfg.homeDir}/config/priv_validator_key.json"
     cometbft init --home "${cfg.homeDir}"
     cometbft start --home "${cfg.homeDir}"
