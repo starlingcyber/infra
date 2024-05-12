@@ -225,8 +225,8 @@ in {
         # not actually be used if the home directory is overridden:
         StateDirectory = cfg.serviceName;
         StateDirectoryMode = "0600";
-        # This creates a directory at `/etc/${cfg.serviceName}/shards` unconditionally, though it
-        # may not actually be used if the shards directory and privKey path are overridden:
+        # This creates a directory at `/etc/${cfg.serviceName}` unconditionally, though it may not
+        # actually be used if the shards directory and privKey path are overridden:
         ConfigurationDirectory= cfg.serviceName;
         ConfigurationDirectoryMode = "0600";
       } // sandboxSystemd {
