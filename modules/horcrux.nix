@@ -164,9 +164,11 @@ in {
           })
           (attrNames cfg.cosigners));
 
-    # The Horcrux configuration file: it's a YAML file, but since YAML is a superset of JSON, we can
-    # generate a JSON file and use it as a YAML file
-    configFile = toJSON {
+    # The cosigners in canonical ordering:
+    orderedCosigners = attrValues cosignersById;
+
+    # The Horcrux configuration:
+    config = {
       keyDir = cfg.shardsDir;
       signMode =  "threshold";
       thresholdMode = {
@@ -208,13 +210,10 @@ in {
       # specified location), write the config file to the home directory where Horcrux will look for
       # it, and start Horcrux:
       script = ''
-        echo "${toJSON {
-          eciesPubs = map (c: c.pubKey) (attrValues cosignersById);
-          inherit id;
-        }}" \
+        echo "${toJSON { eciesPubs = map (c: c.pubKey) orderedCosigners; inherit id; }}" \
           | ${pkgs.jq}/bin/jq ".eciesKey = $(< ${cfg.privKey.path})" \
           > ${cfg.homeDir}/ecies_keys.json
-        echo "${configFile}" > ${cfg.homeDir}/config.yaml
+        echo "${toJSON configFile}" > ${cfg.homeDir}/config.yaml
         ${horcrux}/bin/horcrux --home ${cfg.homeDir} start
       '';
       # If enabled, the service will start automatically when the network comes up
