@@ -166,7 +166,7 @@ in {
 
     # The Horcrux configuration file: it's a YAML file, but since YAML is a superset of JSON, we can
     # generate a JSON file and use it as a YAML file
-    configFile = builtins.toJSON {
+    configFile = toJSON {
       keyDir = cfg.shardsDir;
       signMode =  "threshold";
       thresholdMode = {
@@ -196,33 +196,27 @@ in {
       grpcAddr = cfg.grpc.addr;
     };
 
-    # Template the config files and start horcrux
-    script = let
-      # The `ecies_keys.json` file is a JSON file with the ECIES public keys of all the cosigners,
-      # the node ID, and the ECIES private key of this cosigner: we first make a template for it
-      # that *excludes* the private key because we have to read it at runtime to avoid it ending up
-      # in the Nix store:
-      pubKeys = builtins.toJSON {
-        keys = map (c: c.pubKey) (attrValues cosignersById);
-        inherit id;
-      };
-    # Then, we write the private key into the template (reading it from the specified location),
-    # write the config file to the home directory where Horcrux will look for it, and start Horcrux:
-    in ''
-      echo "${pubKeys}" \
-        | ${pkgs.jq}/bin/jq ".eciesKey = $(< ${cfg.privKey.path})" \
-        > ${cfg.homeDir}/ecies_keys.json
-      echo "${configFile}" > ${cfg.homeDir}/config.yaml
-      ${horcrux}/bin/horcrux --home ${cfg.homeDir} start
-    '';
-
   in mkIf cfg.enable {
     # Add the cometbft executable to the environment
     environment.systemPackages = [ horcrux ];
 
     systemd.services.${cfg.serviceName} = {
-      # The script to start the service
-      inherit script;
+      # The `ecies_keys.json` file is a JSON file with the ECIES public keys of all the cosigners,
+      # the node ID, and the ECIES private key of this cosigner: we first make a template for it
+      # that *excludes* the private key because we have to read it at runtime to avoid it ending up
+      # in the Nix store. Then, we write the private key into the template (reading it from the
+      # specified location), write the config file to the home directory where Horcrux will look for
+      # it, and start Horcrux:
+      script = ''
+        echo "${toJSON {
+          eciesPubs = map (c: c.pubKey) (attrValues cosignersById);
+          inherit id;
+        }}" \
+          | ${pkgs.jq}/bin/jq ".eciesKey = $(< ${cfg.privKey.path})" \
+          > ${cfg.homeDir}/ecies_keys.json
+        echo "${configFile}" > ${cfg.homeDir}/config.yaml
+        ${horcrux}/bin/horcrux --home ${cfg.homeDir} start
+      '';
       # If enabled, the service will start automatically when the network comes up
       wantedBy = [ "multi-user.target" ];
       # The configuration of the service itself:
@@ -232,6 +226,10 @@ in {
         # not actually be used if the home directory is overridden:
         StateDirectory = cfg.serviceName;
         StateDirectoryMode = "0600";
+        # This creates a directory at `/etc/${cfg.serviceName}/shards` unconditionally, though it
+        # may not actually be used if the shards directory and privKey path are overridden:
+        ConfigurationDirectory= cfg.serviceName;
+        ConfigurationDirectoryMode = "0600";
       } // sandboxSystemd {
         # CometBFT needs to write to the home and data directories
         writeDirs = [ cfg.homeDir ];
