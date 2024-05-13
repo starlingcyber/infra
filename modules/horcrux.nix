@@ -181,13 +181,13 @@ in {
       signMode =  "threshold";
       thresholdMode = {
         inherit (cfg) threshold;
-        cosigners =
-          map
-            (cosigner: {
-              shardID = cosigner.id;
-              p2pAddr = "tcp://${cosigner.name}:${toString cosigner.port}";
-            })
-            orderedCosigners;
+        # cosigners =
+        #   map
+        #     (cosigner: {
+        #       shardID = cosigner.id;
+        #       p2pAddr = "tcp://${cosigner.name}:${toString cosigner.port}";
+        #     })
+        #     orderedCosigners;
         grpcTimeout = cfg.grpc.timeout;
         raftTimeout = cfg.raft.timeout;
       };
@@ -219,9 +219,9 @@ in {
       echo "${toJSON pubKeyConfig}" \
         | jq ".eciesKey = $(< ${cfg.privKey.path})" \
         > ${cfg.homeDir}/ecies_keys.json
+      echo "${toJSON horcruxConfig}" > ${cfg.homeDir}/config.yaml
+      horcrux --home ${cfg.homeDir} start
     '';
-      # echo "${toJSON horcruxConfig}" > ${cfg.homeDir}/config.yaml
-      # horcrux --home ${cfg.homeDir} start
 
   in mkIf cfg.enable {
     # Add the cometbft executable to the environment
