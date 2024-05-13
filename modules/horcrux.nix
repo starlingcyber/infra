@@ -163,15 +163,14 @@ in {
 
     # Get a set of all the cosigners in canonical ordering by ID:
     orderedCosigners =
-      attrValues (mapAttrs'
-        (name: cosigner: {
-          name = toString (cosigner.id);
-          value = {
+      sort
+        (a: b: a.id < b.id)
+        (attrValues (mapAttrs
+          (name: cosigner: {
             inherit name;
             inherit (cosigner) port pubKey id;
-          };
-        })
-        allCosigners);
+          })
+          allCosigners));
 
     # The Horcrux configuration:
     horcruxConfig = {
