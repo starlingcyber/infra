@@ -205,28 +205,33 @@ in {
     inherit id;
   };
 
+    # The `ecies_keys.json` file is a JSON file with the ECIES public keys of all the cosigners, the
+    # node ID, and the ECIES private key of this cosigner: we first make a template for it that
+    # *excludes* the private key because we have to read it at runtime to avoid it ending up in the
+    # Nix store. Then, we write the private key into the template (reading it from the specified
+    # location), write the config file to the home directory where Horcrux will look for it, and
+    # start Horcrux:
+    startScript = pkgs.writeShellScript "horcrux" ''
+      set -euxo
+      PATH=${horcrux}/bin:${pkgs.jq}/bin:$PATH
+
+      echo "${toJSON pubKeyConfig}" \
+        | jq ".eciesKey = $(< ${cfg.privKey.path})" \
+        > ${cfg.homeDir}/ecies_keys.json
+      echo "${toJSON horcruxConfig}" > ${cfg.homeDir}/config.yaml
+      horcrux --home ${cfg.homeDir} start
+    '';
+
   in mkIf cfg.enable {
     # Add the cometbft executable to the environment
     environment.systemPackages = [ horcrux ];
 
     systemd.services.${cfg.serviceName} = {
-      # The `ecies_keys.json` file is a JSON file with the ECIES public keys of all the cosigners,
-      # the node ID, and the ECIES private key of this cosigner: we first make a template for it
-      # that *excludes* the private key because we have to read it at runtime to avoid it ending up
-      # in the Nix store. Then, we write the private key into the template (reading it from the
-      # specified location), write the config file to the home directory where Horcrux will look for
-      # it, and start Horcrux:
-      script = ''
-        echo "${toJSON pubKeyConfig}" \
-          | ${pkgs.jq}/bin/jq ".eciesKey = $(< ${cfg.privKey.path})" \
-          > ${cfg.homeDir}/ecies_keys.json
-        echo "${toJSON horcruxConfig}" > ${cfg.homeDir}/config.yaml
-        ${horcrux}/bin/horcrux --home ${cfg.homeDir} start
-      '';
       # If enabled, the service will start automatically when the network comes up
       wantedBy = [ "multi-user.target" ];
       # The configuration of the service itself:
-      serviceConfig =  {
+      serviceConfig = {
+        ExecStart = startScript;
         Restart = "always";
         # This creates a directory at `/var/lib/${cfg.serviceName}` unconditionally, though it may
         # not actually be used if the home directory is overridden:
