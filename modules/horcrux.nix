@@ -143,7 +143,7 @@ in {
 
   config = let
     # Make an attrset of all cosigners, self and also others
-    allCosigners = cfg.cosigners.others // {
+    allCosigners = cfg.cosigners // {
       ${cfg.address} = {
         inherit (cfg) id port pubKey;
       };
