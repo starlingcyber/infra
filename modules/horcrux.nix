@@ -180,28 +180,28 @@ in {
 
     # The Horcrux configuration:
     horcruxConfig = {
-      keyDir = cfg.shardsDir;
-      signMode =  "threshold";
-      thresholdMode = {
-        inherit (cfg) threshold;
-        cosigners =
-          (attrValues (mapAttrs
-            (id: c: {
-              shardID = id;
-              p2pAddr = "tcp://${c.name}:${toString c.port}";
-            })
-            cosignersById));
-        grpcTimeout = cfg.grpc.timeout;
-        raftTimeout = cfg.raft.timeout;
-      };
-      chainNodes =
-        attrValues (mapAttrs
-          (name: node: {
-            privValAddr = "tcp://${name}:${toString node.port}";
-          })
-          cfg.chainNodes);
-      debugAddr = cfg.debug.addr;
-      grpcAddr = cfg.grpc.addr;
+      # keyDir = cfg.shardsDir;
+      # signMode =  "threshold";
+      # thresholdMode = {
+      #   inherit (cfg) threshold;
+      #   cosigners =
+      #     (attrValues (mapAttrs
+      #       (id: c: {
+      #         shardID = id;
+      #         p2pAddr = "tcp://${c.name}:${toString c.port}";
+      #       })
+      #       cosignersById));
+      #   grpcTimeout = cfg.grpc.timeout;
+      #   raftTimeout = cfg.raft.timeout;
+      # };
+      # chainNodes =
+      #   attrValues (mapAttrs
+      #     (name: node: {
+      #       privValAddr = "tcp://${name}:${toString node.port}";
+      #     })
+      #     cfg.chainNodes);
+      # debugAddr = cfg.debug.addr;
+      # grpcAddr = cfg.grpc.addr;
     };
 
   in mkIf cfg.enable {
