@@ -45,7 +45,7 @@ in {
     };
 
     id = mkOption {
-      type = types.int;
+      type = types.ints.between 1 (1 + length (attrNames cfg.cosigners));
       description = "The ID of this cosigner as a strictly positive numerical index";
     };
 
@@ -64,7 +64,7 @@ in {
       type = with types; attrsOf (submodule {
           options = {
             id = mkOption {
-              type = types.ints.between 1 (length (attrNames cfg.cosigners));
+              type = types.ints.between 1 (1 + length (attrNames cfg.cosigners));
               description = "The ID of this other cosigner as a strictly positive numerical index";
             };
             port = mkOption {
