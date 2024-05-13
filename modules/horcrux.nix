@@ -174,33 +174,33 @@ in {
 
     # The Horcrux configuration:
     horcruxConfig = {
-      # keyDir = cfg.shardsDir;
-      # signMode =  "threshold";
-      # thresholdMode = {
-      #   inherit (cfg) threshold;
-      #   cosigners =
-      #     map
-      #       (cosigner: {
-      #         shardID = cosigner.id;
-      #         p2pAddr = "tcp://${cosigner.name}:${toString cosigner.port}";
-      #       })
-      #       orderedCosigners;
-      #   grpcTimeout = cfg.grpc.timeout;
-      #   raftTimeout = cfg.raft.timeout;
-      # };
-      # chainNodes =
-      #   attrValues (mapAttrs
-      #     (name: node: {
-      #       privValAddr = "tcp://${name}:${toString node.port}";
-      #     })
-      #     cfg.chainNodes);
-      # debugAddr = cfg.debug.addr;
-      # grpcAddr = cfg.grpc.addr;
+      keyDir = cfg.shardsDir;
+      signMode =  "threshold";
+      thresholdMode = {
+        inherit (cfg) threshold;
+        cosigners =
+          map
+            (cosigner: {
+              shardID = cosigner.id;
+              p2pAddr = "tcp://${cosigner.name}:${toString cosigner.port}";
+            })
+            orderedCosigners;
+        grpcTimeout = cfg.grpc.timeout;
+        raftTimeout = cfg.raft.timeout;
+      };
+      chainNodes =
+        attrValues (mapAttrs
+          (name: node: {
+            privValAddr = "tcp://${name}:${toString node.port}";
+          })
+          cfg.chainNodes);
+      debugAddr = cfg.debug.addr;
+      grpcAddr = cfg.grpc.addr;
     };
 
   # The file with the pubkeys of all cosigners and the id of this one (not its private key):
   pubKeyConfig = {
-    # eciesPubs = map (c: c.pubKey) orderedCosigners;
+    eciesPubs = map (c: c.pubKey) orderedCosigners;
     # inherit id;
   };
 
