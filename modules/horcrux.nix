@@ -154,7 +154,7 @@ in {
     # rather than in type-checking to prevent module system recursion
     id = let
       correctIds =
-        let ids = map (c: c.id) allCosigners; in
+        let ids = map (c: c.id) (attrValues allCosigners); in
         all (c: 1 <= c.id && c.id <= length ids) allCosigners &&
         unique ids == ids;
     in if correctIds
@@ -201,7 +201,7 @@ in {
   # The file with the pubkeys of all cosigners and the id of this one (not its private key):
   pubKeyConfig = {
     eciesPubs = map (c: c.pubKey) orderedCosigners;
-    # inherit id;
+    inherit id;
   };
 
     # The `ecies_keys.json` file is a JSON file with the ECIES public keys of all the cosigners, the
