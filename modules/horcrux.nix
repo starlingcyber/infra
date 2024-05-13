@@ -158,7 +158,7 @@ in {
         all (c: 1 <= c.id && c.id <= length ids) allCosigners &&
         unique ids == ids;
     in if correctIds
-    then cfg.id
+    then toInt (toString cfg.id)
     else throw "Cosigner IDs are non-unique or out of bounds: each cosigner must have a unique ID in the range [1, N]";
 
     # Get a set of all the cosigners in canonical ordering by ID:
