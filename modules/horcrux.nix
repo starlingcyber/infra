@@ -165,15 +165,15 @@ in {
     else throw "Cosigner IDs are non-unique or out of bounds: each cosigner must have a unique ID in the range [1, N]";
 
     # Get a set of all the cosigners in canonical ordering by ID:
-    orderedCosigners = [];
-      # sort
-      #   (a: b: a.id < b.id)
-      #   (attrValues (mapAttrs
-      #     (name: cosigner: {
-      #       inherit name;
-      #       inherit (cosigner) port pubKey id;
-      #     })
-      #     allCosigners));
+    orderedCosigners =
+      sort
+        (a: b: a.id < b.id)
+        (attrValues (mapAttrs
+          (name: cosigner: {
+            inherit name;
+            inherit (cosigner) port pubKey id;
+          })
+          allCosigners));
 
     # The Horcrux configuration:
     horcruxConfig = {
@@ -219,9 +219,9 @@ in {
       echo "${toJSON pubKeyConfig}" \
         | jq ".eciesKey = $(< ${cfg.privKey.path})" \
         > ${cfg.homeDir}/ecies_keys.json
-      echo "${toJSON horcruxConfig}" > ${cfg.homeDir}/config.yaml
-      horcrux --home ${cfg.homeDir} start
     '';
+      # echo "${toJSON horcruxConfig}" > ${cfg.homeDir}/config.yaml
+      # horcrux --home ${cfg.homeDir} start
 
   in mkIf cfg.enable {
     # Add the cometbft executable to the environment
