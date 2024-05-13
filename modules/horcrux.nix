@@ -181,13 +181,13 @@ in {
       signMode =  "threshold";
       thresholdMode = {
         inherit (cfg) threshold;
-        # cosigners =
-        #   map
-        #     (cosigner: {
-        #       shardID = cosigner.id;
-        #       p2pAddr = "tcp://${cosigner.name}:${toString cosigner.port}";
-        #     })
-        #     orderedCosigners;
+        cosigners =
+          map
+            (cosigner: {
+              # shardID = cosigner.id;
+              # p2pAddr = "tcp://${cosigner.name}:${toString cosigner.port}";
+            })
+            orderedCosigners;
         grpcTimeout = cfg.grpc.timeout;
         raftTimeout = cfg.raft.timeout;
       };
