@@ -204,7 +204,7 @@ in {
   # The file with the pubkeys of all cosigners and the id of this one (not its private key):
   pubKeyConfig = {
     eciesPubs = map (c: c.pubKey) orderedCosigners;
-    inherit id;
+    # inherit id;
   };
 
     # The `ecies_keys.json` file is a JSON file with the ECIES public keys of all the cosigners, the
