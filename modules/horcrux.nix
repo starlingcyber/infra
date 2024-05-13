@@ -204,6 +204,12 @@ in {
       # grpcAddr = cfg.grpc.addr;
     };
 
+  # The file with the pubkeys of all cosigners and the id of this one (not its private key):
+  pubKeyConfig = {
+    # eciesPubs = map (c: c.pubKey) orderedCosigners;
+    # inherit id;
+  };
+
   in mkIf cfg.enable {
     # Add the cometbft executable to the environment
     environment.systemPackages = [ horcrux ];
@@ -216,7 +222,7 @@ in {
       # specified location), write the config file to the home directory where Horcrux will look for
       # it, and start Horcrux:
       script = ''
-        echo "${toJSON { eciesPubs = map (c: c.pubKey) orderedCosigners; inherit id; }}" \
+        echo "${toJSON pubKeyConfig}" \
           | ${pkgs.jq}/bin/jq ".eciesKey = $(< ${cfg.privKey.path})" \
           > ${cfg.homeDir}/ecies_keys.json
         echo "${toJSON horcruxConfig}" > ${cfg.homeDir}/config.yaml
