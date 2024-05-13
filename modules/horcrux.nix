@@ -164,50 +164,49 @@ in {
     # Get a set of all the cosigners, with the hostname equal to the name, indexed by
     # ID (so that the values will be in the same order as the IDs, when extracted)
     cosignersById =
-      listToAttrs
-        (map
-          (name: let c = allCosigners.${name}; in {
-            name = c.id;
-            value = {
-              inherit name;
-              inherit (c) port pubKey;
-            };
-          })
-          (attrNames allCosigners));
+      mapAttrs'
+        (name: cosigner: {
+          name = toString (cosigner.id);
+          value = {
+            inherit name;
+            inherit (cosigner) port pubKey;
+          };
+        })
+        allCosigners;
 
     # The cosigners in canonical ordering:
     orderedCosigners = attrValues cosignersById;
 
     # The Horcrux configuration:
     horcruxConfig = {
-      # keyDir = cfg.shardsDir;
-      # signMode =  "threshold";
-      # thresholdMode = {
-      #   inherit (cfg) threshold;
-      #   cosigners =
-      #     (attrValues (mapAttrs
-      #       (id: c: {
-      #         shardID = id;
-      #         p2pAddr = "tcp://${c.name}:${toString c.port}";
-      #       })
-      #       cosignersById));
-      #   grpcTimeout = cfg.grpc.timeout;
-      #   raftTimeout = cfg.raft.timeout;
-      # };
-      # chainNodes =
-      #   attrValues (mapAttrs
-      #     (name: node: {
-      #       privValAddr = "tcp://${name}:${toString node.port}";
-      #     })
-      #     cfg.chainNodes);
-      # debugAddr = cfg.debug.addr;
-      # grpcAddr = cfg.grpc.addr;
+      keyDir = cfg.shardsDir;
+      signMode =  "threshold";
+      thresholdMode = {
+        inherit (cfg) threshold;
+        cosigners =
+          (attrValues (mapAttrs
+            (id: c: {
+              shardID = id;
+              p2pAddr = "tcp://${c.name}:${toString c.port}";
+            })
+            cosignersById));
+        grpcTimeout = cfg.grpc.timeout;
+        raftTimeout = cfg.raft.timeout;
+      };
+      chainNodes =
+        attrValues (mapAttrs
+          (name: node: {
+            privValAddr = "tcp://${name}:${toString node.port}";
+          })
+          cfg.chainNodes);
+      debugAddr = cfg.debug.addr;
+      grpcAddr = cfg.grpc.addr;
     };
 
   # The file with the pubkeys of all cosigners and the id of this one (not its private key):
   pubKeyConfig = {
     eciesPubs = map (c: c.pubKey) orderedCosigners;
-    # inherit id;
+    inherit id;
   };
 
   in mkIf cfg.enable {
