@@ -206,7 +206,7 @@ in {
 
   # The file with the pubkeys of all cosigners and the id of this one (not its private key):
   pubKeyConfig = {
-    # eciesPubs = map (c: c.pubKey) orderedCosigners;
+    eciesPubs = map (c: c.pubKey) orderedCosigners;
     # inherit id;
   };
 
