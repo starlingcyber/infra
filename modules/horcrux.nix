@@ -165,15 +165,15 @@ in {
     else throw "Cosigner IDs are non-unique or out of bounds: each cosigner must have a unique ID in the range [1, N]";
 
     # Get a set of all the cosigners in canonical ordering by ID:
-    orderedCosigners =
-      sort
-        (a: b: a.id < b.id)
-        (attrValues (mapAttrs
-          (name: cosigner: {
-            inherit name;
-            inherit (cosigner) port pubKey id;
-          })
-          allCosigners));
+    orderedCosigners = [];
+      # sort
+      #   (a: b: a.id < b.id)
+      #   (attrValues (mapAttrs
+      #     (name: cosigner: {
+      #       inherit name;
+      #       inherit (cosigner) port pubKey id;
+      #     })
+      #     allCosigners));
 
     # The Horcrux configuration:
     horcruxConfig = {
@@ -204,7 +204,7 @@ in {
   # The file with the pubkeys of all cosigners and the id of this one (not its private key):
   pubKeyConfig = {
     eciesPubs = map (c: c.pubKey) orderedCosigners;
-    # inherit id;
+    inherit id;
   };
 
     # The `ecies_keys.json` file is a JSON file with the ECIES public keys of all the cosigners, the
