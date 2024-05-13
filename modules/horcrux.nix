@@ -155,7 +155,7 @@ in {
     id = let
       correctIds =
         let ids = map (c: c.id) (attrValues allCosigners); in
-        all (c: 1 <= c.id && c.id <= length ids) allCosigners &&
+        all (c: 1 <= c.id && c.id <= length ids) (attrValues allCosigners) &&
         unique ids == ids;
     in if correctIds
     then cfg.id
