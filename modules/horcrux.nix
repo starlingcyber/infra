@@ -61,7 +61,7 @@ in {
     };
 
     cosigners = mkOption {
-      type = with types; submodule {
+      type = with types; attrsOf (submodule {
           options = {
             id = mkOption {
               type = types.ints.between 1 (length (attrNames cfg.cosigners));
@@ -77,7 +77,7 @@ in {
               description = "The ECIES public key of the other cosigner, encoded in Base64";
             };
           };
-        };
+        });
       default = {};
       description = "The other cosigners which are not this one (all must share the same list of cosigners in total), as a mapping from address (IP or DNS name) to configuration";
     };
