@@ -168,12 +168,13 @@ in {
     orderedCosigners =
       sort
         (a: b: a.id < b.id)
-        (attrValues (mapAttrs
-          (name: cosigner: {
-            inherit name;
-            inherit (cosigner) port pubKey id;
-          })
-          allCosigners));
+        (attrValues
+          (mapAttrs
+            (name: cosigner: {
+              inherit name;
+              inherit (cosigner) port pubKey id;
+            })
+            allCosigners));
 
     # The Horcrux configuration:
     horcruxConfig = {
@@ -184,10 +185,11 @@ in {
         cosigners =
           map
             (cosigner: {
-              # shardID = cosigner.id;
-              # p2pAddr = "tcp://${cosigner.name}:${toString cosigner.port}";
+              shardID = cosigner.id;
+              p2pAddr = "tcp://${cosigner.name}:${toString cosigner.port}";
             })
-            orderedCosigners;
+            [];
+            # orderedCosigners;
         grpcTimeout = cfg.grpc.timeout;
         raftTimeout = cfg.raft.timeout;
       };
