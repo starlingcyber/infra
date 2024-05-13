@@ -111,6 +111,7 @@ in {
           };
         };
       };
+      default = {};
       description = "gRPC configuration for this cosigner";
     };
 
@@ -124,6 +125,7 @@ in {
           };
         };
       };
+      default = {};
       description = "Debug configuration for this cosigner";
     };
 
@@ -137,6 +139,7 @@ in {
           };
         };
       };
+      default = {};
       description = "Raft configuration for this cosigner";
     };
   };
