@@ -179,7 +179,7 @@ in {
     orderedCosigners = attrValues cosignersById;
 
     # The Horcrux configuration:
-    config = {
+    horcruxConfig = {
       keyDir = cfg.shardsDir;
       signMode =  "threshold";
       thresholdMode = {
@@ -219,7 +219,7 @@ in {
         echo "${toJSON { eciesPubs = map (c: c.pubKey) orderedCosigners; inherit id; }}" \
           | ${pkgs.jq}/bin/jq ".eciesKey = $(< ${cfg.privKey.path})" \
           > ${cfg.homeDir}/ecies_keys.json
-        echo "${toJSON configFile}" > ${cfg.homeDir}/config.yaml
+        echo "${toJSON horcruxConfig}" > ${cfg.homeDir}/config.yaml
         ${horcrux}/bin/horcrux --home ${cfg.homeDir} start
       '';
       # If enabled, the service will start automatically when the network comes up
