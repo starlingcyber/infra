@@ -161,21 +161,17 @@ in {
     then cfg.id
     else throw "Cosigner IDs are non-unique or out of bounds: each cosigner must have a unique ID in the range [1, N]";
 
-    # Get a set of all the cosigners, with the hostname equal to the name, indexed by
-    # ID (so that the values will be in the same order as the IDs, when extracted)
-    cosignersById =
-      mapAttrs'
+    # Get a set of all the cosigners in canonical ordering by ID:
+    orderedCosigners =
+      attrValues (mapAttrs'
         (name: cosigner: {
           name = toString (cosigner.id);
           value = {
             inherit name;
-            inherit (cosigner) port pubKey;
+            inherit (cosigner) port pubKey id;
           };
         })
-        allCosigners;
-
-    # The cosigners in canonical ordering:
-    orderedCosigners = attrValues cosignersById;
+        allCosigners);
 
     # The Horcrux configuration:
     horcruxConfig = {
@@ -184,12 +180,12 @@ in {
       thresholdMode = {
         inherit (cfg) threshold;
         cosigners =
-          (attrValues (mapAttrs
-            (id: c: {
-              shardID = id;
-              p2pAddr = "tcp://${c.name}:${toString c.port}";
+          map
+            (cosigner: {
+              shardID = cosigner.id;
+              p2pAddr = "tcp://${cosigner.name}:${toString cosigner.port}";
             })
-            cosignersById));
+            orderedCosigners;
         grpcTimeout = cfg.grpc.timeout;
         raftTimeout = cfg.raft.timeout;
       };
