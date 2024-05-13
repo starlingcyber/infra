@@ -188,7 +188,7 @@ in {
           (attrValues (mapAttrs
             (id: c: {
               shardID = id;
-              p2pAddr = "tcp://${c.name}:${c.port}";
+              p2pAddr = "tcp://${c.name}:${toString c.port}";
             })
             cosignersById));
         grpcTimeout = cfg.grpc.timeout;
@@ -197,7 +197,7 @@ in {
       chainNodes =
         attrValues (mapAttrs
           (name: node: {
-            privValAddr = "tcp://${name}:${node.port}";
+            privValAddr = "tcp://${name}:${toString node.port}";
           })
           cfg.chainNodes);
       debugAddr = cfg.debug.addr;
