@@ -39,44 +39,52 @@ in {
       description = "The number of shards required to reconstruct the secret";
     };
 
+    address = mkOption {
+      type = types.str;
+      description = "The address (IP or DNS name) of this cosigner";
+    };
+
+    id = mkOption {
+      type = types.int;
+      description = "The ID of this cosigner as a strictly positive numerical index";
+    };
+
+    port = mkOption {
+      type = types.int;
+      default = 2222;
+      description = "The port of this cosigner";
+    };
+
+    pubKey = mkOption {
+      type = types.str;
+      description = "The ECIES public key of this cosigner, encoded in Base64";
+    };
+
     cosigners = mkOption {
-      type = with types; attrsOf (submodule {
-        options = {
-          self = mkOption {
-            type = bool;
-            default = false;
-            description = "Whether this cosigner is the one running this service (exactly one must be marked as self)";
-          };
-          id = mkOption {
-            type = types.ints.between 1 (length (attrNames cfg.cosigners));
-            description = "The ID of this cosigner as a strictly positive numerical index";
-          };
-          address = mkOption {
-            type = str;
-            description = "The address of the cosigner (defaults to `services.horcrux.cosigners.<name>`)";
-          };
-          port = mkOption {
-            type = int;
-            default = 2222;
-            description = "The port of the cosigner";
-          };
-          pubKey = mkOption {
-            type = str;
-            description = "The ECIES public key of the cosigner, encoded in Base64";
+      type = with types; submodule {
+          options = {
+            id = mkOption {
+              type = types.ints.between 1 (length (attrNames cfg.cosigners));
+              description = "The ID of this other cosigner as a strictly positive numerical index";
+            };
+            port = mkOption {
+              type = int;
+              default = 2222;
+              description = "The port of the other cosigner";
+            };
+            pubKey = mkOption {
+              type = str;
+              description = "The ECIES public key of the other cosigner, encoded in Base64";
+            };
           };
         };
-      });
       default = {};
-      description = "The cosigners, including this one (all must share the same list of cosigners), as a mapping from name to configuration";
+      description = "The other cosigners which are not this one (all must share the same list of cosigners in total), as a mapping from address (IP or DNS name) to configuration";
     };
 
     chainNodes = mkOption {
       type = with types; attrsOf (submodule {
         options = {
-          address = mkOption {
-            type = str;
-            description = "The address of the chain node's privValidator server (defaults to `services.horcrux.chainNodes.<name>`)";
-          };
           port = mkOption {
             type = int;
             default = 1234;
@@ -85,7 +93,7 @@ in {
         };
       });
       default = [];
-      description = "All the chain nodes, in the form of a mapping from name to configuration";
+      description = "All the chain nodes, in the form of a mapping from address (IP or DNS name) to configuration";
     };
 
     grpc = mkOption {
@@ -134,35 +142,38 @@ in {
   };
 
   config = let
+    # Make an attrset of all cosigners, self and also others
+    allCosigners = cfg.cosigners.others // {
+      ${cfg.address} = {
+        inherit (cfg) id port pubKey;
+      };
+    };
+
     # Check that the cosigner IDs are unique and in bounds, and that there is exactly one cosigner
     # marked as self, extracting that ID to use in the configuration -- this check is done here
     # rather than in type-checking to prevent module system recursion
     id = let
       correctIds =
-        let ids = map (c: c.id) cfg.cosigners; in
-        all (c: 1 <= c.id && c.id <= length ids) cfg.cosigners &&
+        let ids = map (c: c.id) allCosigners; in
+        all (c: 1 <= c.id && c.id <= length ids) allCosigners &&
         unique ids == ids;
-    in if correctIds then
-      (findSingle
-        cfg.cosigners
-        (throw "No horcrux cosigner is marked as self: specify exactly one using `services.horcrux.cosigners.<name>.self = true;`")
-        (throw "Multiple cosigners are marked as self: specify exactly one using `services.horcrux.cosigners.<name>.self = true;`")
-        (c: c.self)).id
+    in if correctIds
+    then cfg.id
     else throw "Cosigner IDs are non-unique or out of bounds: each cosigner must have a unique ID in the range [1, N]";
 
-    # Get a set of all the cosigners, with the hostname defaulting to the name if unspecified,
-    # indexed by ID (so that the values will be in the same order as the IDs, when extracted)
+    # Get a set of all the cosigners, with the hostname equal to the name, indexed by
+    # ID (so that the values will be in the same order as the IDs, when extracted)
     cosignersById =
       listToAttrs
         (map
-          (name: let c = cfg.cosigners.${name}; in {
+          (name: let c = allCosigners.${name}; in {
             name = c.id;
             value = {
-              inherit (c) port pubKey id;
-              hostname = if c ? hostname then c.hostname else name;
+              inherit name;
+              inherit (c) port pubKey;
             };
           })
-          (attrNames cfg.cosigners));
+          (attrNames allCosigners));
 
     # The cosigners in canonical ordering:
     orderedCosigners = attrValues cosignersById;
@@ -174,26 +185,21 @@ in {
       thresholdMode = {
         inherit (cfg) threshold;
         cosigners =
-          map
-            (c: {
-              shardID = c.id;
-              p2pAddr = "tcp://${c.hostname}:${c.port}";
+          (attrValues (mapAttrs
+            (id: c: {
+              shardID = id;
+              p2pAddr = "tcp://${c.name}:${c.port}";
             })
-            (attrValues cosignersById);
+            cosignersById));
         grpcTimeout = cfg.grpc.timeout;
         raftTimeout = cfg.raft.timeout;
       };
       chainNodes =
-        map
-          (name: let
-            node = cfg.chainNodes.${name};
-            # If the address is unspecified, use the name as the address
-            address = if node ? address then node.address else name;
-            port = node.port;
-          in {
-            privValAddr = "tcp://${address}:${port}";
+        attrValues (mapAttrs
+          (name: node: {
+            privValAddr = "tcp://${name}:${node.port}";
           })
-          (attrNames cfg.chainNodes);
+          cfg.chainNodes);
       debugAddr = cfg.debug.addr;
       grpcAddr = cfg.grpc.addr;
     };
