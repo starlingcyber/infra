@@ -215,10 +215,11 @@ in {
     # location), write the config file to the home directory where Horcrux will look for it, and
     # start Horcrux:
     startScript = pkgs.writeShellScript "horcrux" ''
-      set -euxo
+      set -euo
       PATH=${horcrux}/bin:${pkgs.jq}/bin:$PATH
+      PRIVKEY="$(< ${cfg.privKey.path})"
       echo "${toJSON pubKeyConfig}" \
-        | jq ".eciesKey = $(< ${cfg.privKey.path})" \
+        | jq ".eciesKey = env.PRIVKEY" \
         > ${cfg.homeDir}/ecies_keys.json
       echo "${toJSON horcruxConfig}" > ${cfg.homeDir}/config.yaml
       horcrux --home ${cfg.homeDir} start
