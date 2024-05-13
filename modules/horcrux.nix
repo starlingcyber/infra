@@ -152,18 +152,6 @@ in {
       };
     };
 
-    # Check that the cosigner IDs are unique and in bounds, and that there is exactly one cosigner
-    # marked as self, extracting that ID to use in the configuration -- this check is done here
-    # rather than in type-checking to prevent module system recursion
-    id = let
-      correctIds =
-        let ids = map (c: c.id) (attrValues allCosigners); in
-        all (c: 1 <= c.id && c.id <= length ids) (attrValues allCosigners) &&
-        unique ids == ids;
-    in if correctIds
-    then cfg.id
-    else throw "Cosigner IDs are non-unique or out of bounds: each cosigner must have a unique ID in the range [1, N]";
-
     # Get a set of all the cosigners in canonical ordering by ID:
     orderedCosigners =
       sort
@@ -175,6 +163,18 @@ in {
               inherit (cosigner) port pubKey id;
             })
             allCosigners));
+
+    # Check that the cosigner IDs are unique and in bounds, and that there is exactly one cosigner
+    # marked as self, extracting that ID to use in the configuration -- this check is done here
+    # rather than in type-checking to prevent module system recursion
+    selfId = let
+      correctIds =
+        let ids = map (c: c.id) orderedCosigners; in
+        all (c: 1 <= c.id && c.id <= length ids) orderedCosigners &&
+        unique ids == ids;
+    in if correctIds
+    then cfg.id
+    else throw "Cosigner IDs are non-unique or out of bounds: each cosigner must have a unique ID in the range [1, N]";
 
     # The Horcrux configuration:
     horcruxConfig = {
@@ -188,8 +188,7 @@ in {
               shardID = cosigner.id;
               p2pAddr = "tcp://${cosigner.name}:${toString cosigner.port}";
             })
-            [];
-            # orderedCosigners;
+            orderedCosigners;
         grpcTimeout = cfg.grpc.timeout;
         raftTimeout = cfg.raft.timeout;
       };
@@ -206,7 +205,7 @@ in {
   # The file with the pubkeys of all cosigners and the id of this one (not its private key):
   pubKeyConfig = {
     eciesPubs = map (c: c.pubKey) orderedCosigners;
-    inherit id;
+    id = selfId;
   };
 
     # The `ecies_keys.json` file is a JSON file with the ECIES public keys of all the cosigners, the
