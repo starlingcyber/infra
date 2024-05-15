@@ -208,26 +208,6 @@ in {
     id = selfId;
   };
 
-    # The `ecies_keys.json` file is a JSON file with the ECIES public keys of all the cosigners, the
-    # node ID, and the ECIES private key of this cosigner: we first make a template for it that
-    # *excludes* the private key because we have to read it at runtime to avoid it ending up in the
-    # Nix store. Then, we write the private key into the template (reading it from the specified
-    # location), write the config file to the home directory where Horcrux will look for it, and
-    # start Horcrux:
-    startScript = pkgs.writeShellScript "horcrux" ''
-      set -euxo
-      PATH=${horcrux}/bin:${pkgs.jq}/bin:$PATH
-      ECIES_PRIVKEY="$(< ${cfg.privKey.path})"
-      ECIES_CONFIG="${toJSON pubKeyConfig}"
-      HORCRUX_HOME=${cfg.homeDir}
-      HORCRUX_CONFIG="${toJSON horcruxConfig}"
-      >&2 echo "$ECIES_CONFIG"
-      >&2 echo "$HORCRUX_CONFIG"
-      echo "$ECIES_CONFIG" | jq ".eciesKey = env.ECIES_PRIVKEY" > "$HORCRUX_HOME/ecies_keys.json"
-      echo "$HORCRUX_CONFIG" > "$HORCRUX_HOME/config.yaml"
-      horcrux --home "$HORCRUX_HOME" start
-    '';
-
   in mkIf cfg.enable {
     # Add the cometbft executable to the environment
     environment.systemPackages = [ horcrux ];
@@ -235,9 +215,27 @@ in {
     systemd.services.${cfg.serviceName} = {
       # If enabled, the service will start automatically when the network comes up
       wantedBy = [ "multi-user.target" ];
+      # The `ecies_keys.json` file is a JSON file with the ECIES public keys of all the cosigners, the
+      # node ID, and the ECIES private key of this cosigner: we first make a template for it that
+      # *excludes* the private key because we have to read it at runtime to avoid it ending up in the
+      # Nix store. Then, we write the private key into the template (reading it from the specified
+      # location), write the config file to the home directory where Horcrux will look for it, and
+      # start Horcrux:
+      script = ''
+        set -euxo
+        PATH=${horcrux}/bin:${pkgs.jq}/bin:$PATH
+        ECIES_PRIVKEY="$(< ${cfg.privKey.path})"
+        ECIES_CONFIG="${toJSON pubKeyConfig}"
+        HORCRUX_HOME=${cfg.homeDir}
+        HORCRUX_CONFIG="${toJSON horcruxConfig}"
+        >&2 echo "$ECIES_CONFIG"
+        >&2 echo "$HORCRUX_CONFIG"
+        echo "$ECIES_CONFIG" | jq ".eciesKey = env.ECIES_PRIVKEY" > "$HORCRUX_HOME/ecies_keys.json"
+        echo "$HORCRUX_CONFIG" > "$HORCRUX_HOME/config.yaml"
+        horcrux --home "$HORCRUX_HOME" start
+      '';
       # The configuration of the service itself:
       serviceConfig = {
-        ExecStart = startScript;
         Restart = "always";
         # This creates a directory at `/var/lib/${cfg.serviceName}` unconditionally, though it may
         # not actually be used if the home directory is overridden:
