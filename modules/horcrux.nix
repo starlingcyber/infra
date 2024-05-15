@@ -217,12 +217,16 @@ in {
     startScript = pkgs.writeShellScript "horcrux" ''
       set -euo
       PATH=${horcrux}/bin:${pkgs.jq}/bin:$PATH
-      PRIVKEY="$(< ${cfg.privKey.path})"
-      echo "${toJSON pubKeyConfig}" \
-        | jq ".eciesKey = env.PRIVKEY" \
-        > ${cfg.homeDir}/ecies_keys.json
-      echo "${toJSON horcruxConfig}" > ${cfg.homeDir}/config.yaml
-      horcrux --home ${cfg.homeDir} start
+      ECIES_PRIVKEY="$(< ${cfg.privKey.path})"
+      set -x
+      ECIES_CONFIG="${toJSON pubKeyConfig}"
+      HORCRUX_HOME=${cfg.homeDir}
+      HORCRUX_CONFIG="${toJSON horcruxConfig}"
+      echo "$ECIES_CONFIG" \
+        | jq ".eciesKey = env.ECIES_PRIVKEY" \
+        > /ecies_keys.json
+      echo "$HORCRUX_CONFIG" > $HORCRUX_HOME/config.yaml
+      horcrux --home "$HORCRUX_HOME" start
     '';
 
   in mkIf cfg.enable {
