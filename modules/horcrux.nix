@@ -178,7 +178,6 @@ in {
 
     # The Horcrux configuration:
     horcruxConfig = {
-      keyDir = cfg.shardsDir;
       signMode =  "threshold";
       thresholdMode = {
         inherit (cfg) threshold;
@@ -229,7 +228,9 @@ in {
         ECIES_CONFIG='${toJSON pubKeyConfig}'
         HORCRUX_HOME='${cfg.homeDir}'
         HORCRUX_CONFIG='${toJSON horcruxConfig}'
-        echo "$ECIES_CONFIG" | jq '.eciesKey = env.ECIES_PRIVKEY' > "${shardsDir}/ecies_keys.json"
+        rm -f "$HORCRUX_HOME/*_shard.json"
+        cp -f "${cfg.shardsDir}/*_shard.json" "$HORCRUX_HOME"
+        echo "$ECIES_CONFIG" | jq '.eciesKey = env.ECIES_PRIVKEY' > "$HORCRUX_HOME/ecies_keys.json"
         echo "$HORCRUX_CONFIG" > "$HORCRUX_HOME/config.yaml"
         horcrux --home "$HORCRUX_HOME" start
       '';
