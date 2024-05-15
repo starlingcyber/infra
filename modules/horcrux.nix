@@ -230,7 +230,7 @@ in {
         HORCRUX_CONFIG='${toJSON horcruxConfig}'
         rm -f "$HORCRUX_HOME"/*_shard.json
         for SHARD in "${cfg.shardsDir}"/*_shard.json; do
-          cp -f "${cfg.shardsDir}/$SHARD" "$HORCRUX_HOME"
+          cp -f "$SHARD" "$HORCRUX_HOME"
         done
         echo "$ECIES_CONFIG" | jq '.eciesKey = env.ECIES_PRIVKEY' > "$HORCRUX_HOME/ecies_keys.json"
         echo "$HORCRUX_CONFIG" > "$HORCRUX_HOME/config.yaml"
