@@ -218,16 +218,13 @@ in {
       set -euo
       PATH=${horcrux}/bin:${pkgs.jq}/bin:$PATH
       ECIES_PRIVKEY="$(< ${cfg.privKey.path})"
-      set -x
       ECIES_CONFIG="${toJSON pubKeyConfig}"
       HORCRUX_HOME=${cfg.homeDir}
       HORCRUX_CONFIG="${toJSON horcruxConfig}"
-      echo "$ECIES_CONFIG"
-      echo "$HORCRUX_CONFIG"
-      echo "$ECIES_CONFIG" \
-        | jq ".eciesKey = env.ECIES_PRIVKEY" \
-        > /ecies_keys.json
-      echo "$HORCRUX_CONFIG" > $HORCRUX_HOME/config.yaml
+      >&2 echo "$ECIES_CONFIG"
+      >&2 echo "$HORCRUX_CONFIG"
+      echo "$ECIES_CONFIG" | jq ".eciesKey = env.ECIES_PRIVKEY" > "$HORCRUX_HOME/ecies_keys.json"
+      echo "$HORCRUX_CONFIG" > "$HORCRUX_HOME/config.yaml"
       horcrux --home "$HORCRUX_HOME" start
     '';
 
