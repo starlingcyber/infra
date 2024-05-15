@@ -222,6 +222,8 @@ in {
       ECIES_CONFIG="${toJSON pubKeyConfig}"
       HORCRUX_HOME=${cfg.homeDir}
       HORCRUX_CONFIG="${toJSON horcruxConfig}"
+      echo "$ECIES_CONFIG"
+      echo "$HORCRUX_CONFIG"
       echo "$ECIES_CONFIG" \
         | jq ".eciesKey = env.ECIES_PRIVKEY" \
         > /ecies_keys.json
