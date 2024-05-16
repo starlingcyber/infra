@@ -229,7 +229,7 @@ in {
           cp -f "$SHARD" "$HORCRUX_HOME"
         done
         echo '${toJSON pubKeyConfig}' \
-          | ECIES_PRIVKEY='$(< ${cfg.privKey.path})' \
+          | ECIES_PRIVKEY="$(< ${cfg.privKey.path})" \
             jq '.eciesKey = env.ECIES_PRIVKEY' \
           > "$HORCRUX_HOME/ecies_keys.json"
         echo '${toJSON horcruxConfig}' > "$HORCRUX_HOME/config.yaml"
