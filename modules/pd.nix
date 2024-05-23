@@ -5,7 +5,7 @@ with lib; with self.lib.util; let
   opts = options.services.penumbra.pd;
 
   # Shorthand for the packages, used below
-  penumbra = self.packages.${pkgs.system}.penumbra;
+  penumbra = cfg.package;
   cometbft = self.packages.${pkgs.system}.cometbft;
 
   # Script to start the Penumbra daemon
@@ -58,6 +58,12 @@ in {
 
     pause = mkEnableOption "Whether to keep the Penumbra daemon paused";
 
+    package = mkOption {
+      type = types.package;
+      default = self.packages.${pkgs.system}.penumbra;
+      description = "The Penumbra package to use (by default, the latest stable release)";
+    };
+
     dataDir = mkOption {
       type = types.path;
       default = "/var/lib/${cfg.serviceName}";
@@ -66,7 +72,7 @@ in {
 
     serviceName = mkOption {
       type = types.str;
-      default = "penumbra.pd";
+      default = "pd";
       description = "The name of the Penumbra daemon service";
     };
 
