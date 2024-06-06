@@ -13,7 +13,7 @@ with lib; with self.lib.util; let
     set -euxo
     ${penumbra}/bin/pd start \
       --home ${cfg.dataDir} \
-      ${if cfg.rpc.autoHttps.enable then "--grpc-auto-https" else ""} \
+      ${if cfg.rpc.autoHttps.enable then "--grpc-auto-https ${cfg.rpc.autoHttps.domain}" else ""} \
       ${if cfg.rpc.autoHttps.production then "" else "--acme-staging"} \
       ${if cfg.metrics.port != null || cfg.metrics.ip != opts.metrics.ip.default
         then "--metrics-bind ${cfg.metrics.ip}:" + toString cfg.metrics.port
@@ -131,6 +131,12 @@ in {
 
     rpc.autoHttps.enable =
       mkEnableOption "Whether to automatically enable HTTPS for the server using Let's Encrypt";
+
+    rpc.autoHttps.domain = mkOption {
+      type = types.str;
+      default = "localhost";
+      description = "The domain name to use for the Let's Encrypt certificate";
+    };
 
     rpc.autoHttps.production =
       mkEnableOption "Whether to use the production (rate-limited) Let's Encrypt ACME endpoint for the RPC server and web frontend";
