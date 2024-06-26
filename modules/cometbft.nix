@@ -70,10 +70,10 @@ with lib; with self.lib.util; let
       broadcast = true;
       wal_dir = "";
       size = 5000;
-      max_txs_bytes = 1073741824;
+      max_txs_bytes = 10485760;
       cache_size = 10000;
       keep-invalid-txs-in-cache = false;
-      max_tx_bytes = 1048576;
+      max_tx_bytes = 30720;
       max_batch_bytes = 0;
     };
     consensus = {
