@@ -3,8 +3,8 @@
 name = "penumbra";
 owner = "penumbra-zone";
 repo = "penumbra";
-version = "0.79.0-alpha.5";
-hash = "sha256-ciRhKyabaK+YKmToXo81QWS34MovmMUwsLdh5E6oqWE=";
+version = "0.79.0";
+hash = "sha256-5g0WzgQ/QkSMEwBlF7Ci8ELC4dO+BhkGF2XNrwzXzM8=";
 
 in let
   # Set up for Rust builds
