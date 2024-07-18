@@ -3,8 +3,8 @@
 name = "horcrux";
 owner = "strangelove-ventures";
 repo = "horcrux";
-version = "3.3.0";
-hash = "sha256-ECrIFCJ0vIfuVfJmsGNRvwsf2lLLXhrZ5OCR300Qn0I=";
+version = "3.3.1";
+hash = "sha256-AGLLe72/ZS4M2oEXULb0mWMqLUC+YYJTO8BkmcMQKQM=";
 vendorHash = "sha256-+fArmL2NwkSDo7jHN/wXu9mff0mXuXu2MtmXjuT1W0E=";
 
 in with pkgs; with pkgs.lib; with builtins;
