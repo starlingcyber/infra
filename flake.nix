@@ -23,6 +23,7 @@
             pd = "${packages.penumbra}/bin/pd";
             pcli = "${packages.penumbra}/bin/pcli";
             pclientd = "${packages.penumbra}/bin/pclientd";
+            pindexer = "${packages.penumbra}/bin/pindexer";
             # Add any future Penumbra package commands here
           };
         in {

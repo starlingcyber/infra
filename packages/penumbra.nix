@@ -34,5 +34,5 @@ in with pkgs; with pkgs.lib;
   nativeBuildInputs = [ pkg-config ];
   buildInputs = [ clang openssl ];
   inherit system PKG_CONFIG_PATH LIBCLANG_PATH;
-  cargoExtraArgs = "-p pd -p pcli -p pclientd";
+  cargoExtraArgs = "-p pd -p pcli -p pclientd -p pindexer";
 }).overrideAttrs (_: { doCheck = false; }) # Disable tests to improve build times
