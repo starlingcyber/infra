@@ -100,7 +100,7 @@ with lib; with self.lib.util; let
     };
     storage.discard_abci_responses = false;
     tx_index.indexer = cfg.txIndex.indexer;
-    tx_index.psql_conn = cfg.txIndex.psqlConn;
+    tx_index.psql-conn = cfg.txIndex.psqlConn;
     statesync.enable = false;
   };
 
