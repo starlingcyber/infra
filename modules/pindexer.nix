@@ -1,4 +1,4 @@
-{ config, lib, pkgs, self, ... }:
+self: { config, lib, pkgs, ... }:
 
 let
   cfg = config.services.penumbra.pindexer;
