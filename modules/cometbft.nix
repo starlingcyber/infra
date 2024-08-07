@@ -73,7 +73,7 @@ with lib; with self.lib.util; let
       max_txs_bytes = 10485760;
       cache_size = 10000;
       keep-invalid-txs-in-cache = false;
-      max_tx_bytes = 30720;
+      max_tx_bytes = 98304;
       max_batch_bytes = 0;
     };
     consensus = {
