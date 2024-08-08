@@ -81,9 +81,9 @@ with lib; with self.lib.util; let
       timeout_propose = "3000ms";
       timeout_propose_delta = "500ms";
       timeout_prevote = "1000ms";
-      timeout_prevote_delta = "5ms"; # FIXME: change this back to 500ms
+      timeout_prevote_delta = "500ms";
       timeout_precommit = "1000ms";
-      timeout_precommit_delta = "5ms"; # FIXME: change this back to 500ms
+      timeout_precommit_delta = "500ms";
       timeout_commit = "5000ms";
       double_sign_check_height = cfg.consensus.doubleSignCheckHeight;
       skip_timeout_commit = false;
